@@ -1,70 +1,73 @@
-# Getting Started with Create React App
+Конечно! Вот полный, подробный и последовательный текст приветствия и инструкции для пользователей GGselGift. Он подходит для использования на лендинге, в приложении или как стартовый гайд при первом входе:
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+🎉 Добро пожаловать в GGselGift — ваш надежный помощник в продаже NFT-подарков!
+GGselGift — это безопасная и удобная платформа, созданная специально для продажи NFT-подарков. Мы выступаем гарантом сделки между продавцом и покупателем, обеспечивая обе стороны защитой, прозрачностью и простотой взаимодействия.
 
-## Available Scripts
+Мы позаботились о том, чтобы вы могли продавать свои NFT-подарки без риска обмана и с максимальной выгодой. Ниже вы найдете полную инструкцию по процессу продажи через нашу платформу.
 
-In the project directory, you can run:
+🛡️ Как работает GGselGift:
 
-### `npm start`
+1. Вы — продавец. Покупатель — плательщик комиссии.
+   Мы не удерживаем проценты с продавца.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Вся комиссия — 1% от суммы сделки — оплачивается покупателем.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Вы, как продавец, получаете полную сумму, которую указываете в объявлении (за вычетом только рыночной комиссии блокчейна, если такая есть).
 
-### `npm test`
+📋 Этап 1: Создание ордера на продажу NFT
+Чтобы начать, вам нужно создать специальный ордер на продажу через приложение GGselGift. Это займет всего пару минут:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+🔹 Укажите название вашего NFT-подарка
+🔹 Задайте цену, по которой вы хотите его продать
+🔹 Введите TON-адрес вашего кошелька, на который вы хотите получить оплату
 
-### `npm run build`
+После ввода всех данных и подтверждения создания ордера, вы получите уникальный код конференции. Этот код понадобится покупателю, чтобы подключиться к сделке.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+🤝 Этап 2: Передача кода покупателю
+🔸 Передайте полученный код конференции покупателю.
+🔸 Покупатель с помощью этого кода подключается к конференции внутри нашего приложения.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+⚠️ Очень важно: не передавайте NFT-подарок до подтверждения перевода средств на гарантированный кошелек GGsel!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+💰 Этап 3: Перевод средств на гарантированный кошелек
+После подключения к конференции:
 
-### `npm run eject`
+🔹 Покупатель переводит полную сумму, включая нашу 1% комиссию, на кошелек GGselGuarantee — это наш официальный кошелек-гарант.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+🔹 Мы получаем средства и проверяем безопасность транзакции:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Совпадают ли суммы
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Пришли ли средства от того покупателя, который подключился
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Достаточны ли средства для покрытия комиссии
 
-## Learn More
+✅ Этап 4: Подтверждение и передача NFT
+Как только мы удостоверимся, что всё в порядке:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+🔸 Вы получите уведомление от GGselGift, что средства успешно зачислены на наш гарантированный кошелек.
+🔸 После этого вы передаёте свой NFT-подарок через наше приложение в систему GGselGuaranteeGift.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+📦 Этап 5: Завершение сделки
+После того как вы передали NFT и система подтвердит получение:
 
-### Code Splitting
+🔹 Средства автоматически перечисляются на ваш TON-кошелек, указанный при создании ордера.
+🔹 NFT-подарок отправляется покупателю.
+🔹 Сделка считается завершённой.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+💎 Почему GGselGift — это удобно и выгодно?
+Безопасность: мы выступаем гарантом сделки и проверяем каждый этап.
 
-### Analyzing the Bundle Size
+Прозрачность: продавец получает всю сумму без скрытых удержаний.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Удобство: весь процесс автоматизирован, интуитивен и занимает минимум времени.
 
-### Making a Progressive Web App
+Скорость: сделки обрабатываются в реальном времени.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Поддержка: если возникнут вопросы, наша служба поддержки готова помочь вам 24/7.
 
-### Advanced Configuration
+🚀 Начните прямо сейчас!
+Создайте первый ордер, передайте код покупателю и получите оплату за ваш NFT-подарок без лишнего риска и с максимальной выгодой.
+GGselGift — это доверие, защита и успех ваших цифровых сделок.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Если нужно, я могу сделать адаптацию под Telegram-бот, PDF-гайд, экран приветствия для мобильного приложения или превратить это в лендинг-текст с разделами.

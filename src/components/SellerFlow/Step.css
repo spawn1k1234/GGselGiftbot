@@ -1,0 +1,10 @@
+.inputsstep {
+  width: 60%;
+  height: 30px;
+}
+.flstep {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 300px;
+}

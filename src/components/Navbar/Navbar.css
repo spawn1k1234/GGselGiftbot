@@ -1,0 +1,70 @@
+.navflnavigat {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+}
+.ulflex {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  list-style: none;
+  background-color: rgba(
+    146,
+    146,
+    146,
+    0.089
+  ); /* или другой фон, чтобы отделить от содержимого */
+  padding: 10px 0;
+  height: 40px;
+  backdrop-filter: blur(40px);
+}
+.ulflex li a {
+  position: relative;
+  color: #fff;
+  text-decoration: none;
+  padding: 22px 0px;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  transform: scale(1);
+  overflow: hidden;
+  font-size: 15px;
+  font-family: "Montserrat", sans-serif;
+}
+
+/* Анимированная полоска сверху */
+.ulflex li a::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  height: 3px;
+  width: 100%;
+  background-color: #74747452;
+  transition: transform 0.3s ease;
+  transform-origin: center;
+}
+
+/* При наведении полоска появляется */
+.ulflex li a:hover::before,
+.ulflex li a:focus::before,
+.ulflex li a:active::before {
+  transform: translateX(-50%) scaleX(1);
+}
+
+/* Hover эффекты */
+.ulflex li a:hover {
+  transform: scale(1.05);
+}
+
+/* Active */
+.ulflex li a:active {
+  transform: scale(0.96);
+  opacity: 0.85;
+}
