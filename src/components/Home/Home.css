@@ -54,6 +54,9 @@
   font-family: "Montserrat", sans-serif;
   animation: fadeText 4s ease-in-out infinite;
   font-size: 23px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 .spanggiftuser {
   color: white;
@@ -125,7 +128,7 @@
   margin: 10px;
   overflow: hidden;
   box-sizing: border-box;
-  background: #4e4e4e2c;
+  background: #4e4e4e18;
   backdrop-filter: blur(20px);
   padding: 10px 0;
 }
@@ -140,7 +143,7 @@
   flex: 0 0 auto;
   width: 150px;
   margin-right: 10px;
-  color: rgb(0, 0, 0);
+  color: rgba(0, 0, 0, 0.747);
   display: flex;
   align-items: center;
   font-size: 17px;
@@ -155,6 +158,7 @@
   width: 30%;
   height: auto;
   border-radius: 10px;
+  opacity: 0.7;
   transition: transform 0.3s ease;
 }
 
@@ -176,15 +180,144 @@
 .flexscontthear {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
-  padding: 10px;
-  justify-content: space-around;
+  gap: 10px;
+  justify-content: space-evenly;
 }
 .etxdiv {
-  padding: 30px 80px;
+  display: flex;
+  width: 150px;
+  padding: 10px;
   backdrop-filter: blur(5px);
-  background-color: rgba(87, 87, 87, 0.096);
-  border: solid 2px rgba(112, 112, 112, 0.123);
-  border-radius: 3px;
+  background-color: rgba(58, 58, 58, 0.055);
+  border: solid 2px rgba(139, 139, 139, 0.068);
+  border-radius: 6px;
+  gap: 10px;
+  align-items: flex-end;
+}
+.material-symbols-outlined {
+  color: #5bc11377;
+  font-size: 20px;
+}
+.podetxdibv {
+  display: flex;
+  flex-direction: column;
+}
+
+.ettit {
+  font-weight: 800;
+  font-family: "Montserrat", sans-serif;
+  color: white;
+  font-size: 10px;
+}
+.etptit {
+  font-weight: 300;
+  font-family: "Montserrat", sans-serif;
+  color: white;
+  font-size: 10px;
 }
 /* flexscontthear */
+/* contbuttit */
+.contbuttit {
+  margin: 10px 0px;
+  width: 95%;
+  backdrop-filter: blur(5px);
+  background-color: rgba(143, 23, 23, 0);
+}
+.contbuttit_h1 {
+  color: rgb(228, 228, 228);
+  font-size: 17px;
+  font-weight: 600;
+  padding: 10px;
+  font-family: "Montserrat", sans-serif;
+  text-align: left;
+}
+/* .solidpodcontbut {
+  width: 80%;
+  height: 1px;
+  background-color: rgba(240, 248, 255, 0.137);
+} */
+.solidpodcontbut {
+  width: 90%;
+  height: 1px;
+  background: linear-gradient(
+    270deg,
+    rgba(255, 0, 0, 0.205),
+    rgba(255, 166, 0, 0.205),
+    rgba(255, 255, 0, 0.205),
+    rgba(21, 187, 21, 0.205),
+    rgba(0, 255, 255, 0.205),
+    rgba(48, 226, 152, 0.205),
+    rgba(238, 130, 238, 0.205)
+  );
+  background-size: 400% 100%;
+  animation: rainbowLoad 5s linear infinite;
+  border-radius: 2px;
+}
+
+@keyframes rainbowLoad {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+/* contbuttit */
+/* flpodsolcontbut */
+.flbutt {
+  position: relative;
+  overflow: hidden;
+  padding: 10px 25px;
+  border-radius: 5px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  backdrop-filter: blur(20px);
+  background-color: rgba(112, 112, 112, 0.068);
+  border: solid 1px rgba(255, 255, 255, 0.178);
+  color: white;
+  cursor: pointer;
+}
+
+/* Псевдоэлемент для блеска */
+.flbutt::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.11) 50%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  transform: rotate(25deg);
+  animation: shine 2.5s infinite;
+}
+
+/* Анимация блеска */
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) rotate(25deg);
+  }
+  100% {
+    transform: translateX(100%) rotate(25deg);
+  }
+}
+
+.flpodsolcontbut {
+  display: flex;
+  padding: 10px;
+  gap: 15px;
+  justify-content: space-between;
+  align-items: center;
+}
+.solidwert {
+  width: 1px;
+  height: 50px;
+  background-color: rgba(240, 248, 255, 0.082);
+}
+/* flpodsolcontbut */

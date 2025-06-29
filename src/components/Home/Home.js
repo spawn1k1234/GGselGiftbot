@@ -19,7 +19,17 @@ const Home = ({ userData }) => {
           ></img>
           <h1 className="conteinerlogotitl">
             GGselGift{" "}
-            <span className="spanggiftuser">- {userData.username}</span>
+            <span className="spanggiftuser"> {userData.username}</span>
+            <span
+              className="material-symbols-outlined"
+              style={{
+                color: "rgba(148, 255, 73, 0.16)",
+                fontSize: "22px",
+                marginLeft: "-5px",
+              }}
+            >
+              passkey
+            </span>
           </h1>
         </div>
 
@@ -112,18 +122,93 @@ const Home = ({ userData }) => {
         </div>
       </div>
       <div className="flexscontthear">
-        <div className="etxdiv"></div>
-        <div className="etxdiv"></div>
-        <div className="etxdiv"></div>
-        <div className="etxdiv"></div>
-        <div className="etxdiv"></div>
+        <div className="etxdiv">
+          <div className="podetxdibv">
+            <h1 className="ettit">Прозрачные условия</h1>
+            <p className="etptit">
+              Никаких скрытых комиссий. Всё чётко и понятно с самого начала.
+            </p>
+          </div>
+          <div className="iconpotetxdiv">
+            {/* <span class="material-symbols-outlined">6_ft_apart</span> */}
+            <span class="material-symbols-outlined">arming_countdown</span>
+          </div>
+        </div>
+        <div className="etxdiv">
+          <div className="podetxdibv">
+            <h1 className="ettit">Полный контроль</h1>
+            <p className="etptit">
+              Вы управляете каждой деталью сделки — от начала до завершения.
+            </p>
+          </div>
+          <div className="iconpotetxdiv">
+            {/* <span class="material-symbols-outlined">6_ft_apart</span> */}
+            {/* <span class="material-symbols-outlined">arming_countdown</span> */}
+            <span class="material-symbols-outlined">partner_exchange</span>
+          </div>
+        </div>
+        <div className="etxdiv">
+          <div className="podetxdibv">
+            <h1 className="ettit">Быстро и удобно</h1>
+            <p className="etptit">
+              Заключайте сделки за минуты — система автоматизирует всё за вас.
+            </p>
+          </div>
+          <div className="iconpotetxdiv">
+            <span class="material-symbols-outlined">acute</span>
+          </div>
+        </div>
+        <div className="etxdiv">
+          <div className="podetxdibv">
+            <h1 className="ettit">Ваша безопасность</h1>
+            <p className="etptit">
+              Мы обеспечиваем надежную защиту данных на всех этапах
+              взаимодействия.
+            </p>
+          </div>
+
+          <div className="iconpotetxdiv">
+            <span class="material-symbols-outlined">6_ft_apart</span>
+          </div>
+        </div>
+        <div style={{ margin: "0px 10px", width: "auto" }} className="etxdiv">
+          <div className="podetxdibv">
+            <h1 className="ettit">Успешная сделка — легко и прозрачно</h1>
+            <p className="etptit">
+              Заключайте сделки быстро, безопасно и без лишних шагов. Мы
+              сопровождаем вас на каждом этапе.
+            </p>
+          </div>
+          <div className="iconpotetxdiv">
+            <span class="material-symbols-outlined">account_child</span>
+          </div>
+        </div>
         {/* <div className="etxdiv"></div> */}
       </div>
       {/* <img
         className="imgmain"
         src="https://c-p.rmcdn1.net/5bf7ef2ff5d18d046b6e678d/2810850/upload-ddd270af-e36a-425b-88d1-485a0b515133.gif"
       ></img> */}
-      <div className="contbakdrtitptit">
+      <div className="contbuttit">
+        <h1 className="contbuttit_h1">
+          В мире NFT: выберите свою роль — покупатель или продавец, и откройте
+          возможности цифровых коллекций.
+        </h1>
+      </div>
+      <div className="solidpodcontbut"></div>
+      <div className="flpodsolcontbut">
+        <button className="flbutt" onClick={() => navigate("/seller/step1")}>
+          Я продавец
+        </button>
+        <div className="solidwert"></div>
+        <button
+          className="flbutt"
+          onClick={() => navigate("/buyer/enter-code")}
+        >
+          Я покупатель
+        </button>
+      </div>
+      {/* <div className="contbakdrtitptit">
         <p className="ptit">
           <span className="span_h1greit">GGselGift</span> — это безопасная и
           удобная платформа, созданная специально для продажи NFT-подарков.
@@ -134,7 +219,7 @@ const Home = ({ userData }) => {
           обеспечивая обе стороны защитой, прозрачностью и простотой
           взаимодействия.
         </p>
-      </div>
+      </div> */}
     </div>
   );
 };
