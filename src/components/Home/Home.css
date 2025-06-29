@@ -55,13 +55,19 @@
   animation: fadeText 4s ease-in-out infinite;
   font-size: 23px;
 }
-
+.spanggiftuser {
+  color: white;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 300;
+  animation: fadeText 4s ease-in-out infinite;
+  font-size: 15px;
+}
 /* conteinerlogo */
 /* contbakdrtit */
 .contbakdrtit {
   width: 97%;
   height: auto;
-  background-color: rgba(85, 85, 85, 0.116);
+  background-color: rgba(85, 85, 85, 0.062);
   backdrop-filter: blur(20px);
   border-radius: 5px;
 }
@@ -69,7 +75,7 @@
   font-family: "Montserrat", sans-serif;
   font-weight: 500;
   color: white;
-  font-size: 14px;
+  font-size: 15px;
   text-align: left;
   padding: 10px;
   letter-spacing: 1px;
@@ -88,6 +94,7 @@
   backdrop-filter: blur(20px);
   border-radius: 5px;
 }
+
 .ptit {
   font-weight: 500;
   color: rgb(185, 185, 185);
@@ -109,3 +116,75 @@
   margin: 5px 0px;
 }
 /* contbakdrtit */
+.imgmain {
+  height: 100px;
+}
+/* slider */
+.slider {
+  width: 100%;
+  margin: 10px;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: #4e4e4e2c;
+  backdrop-filter: blur(20px);
+  padding: 10px 0;
+}
+
+.slide-track {
+  display: flex;
+  width: calc(150px * 10); /* 10 картинок */
+  animation: scroll 20s linear infinite;
+}
+
+.slide-track a {
+  flex: 0 0 auto;
+  width: 150px;
+  margin-right: 10px;
+  color: rgb(0, 0, 0);
+  display: flex;
+  align-items: center;
+  font-size: 17px;
+  gap: 8px;
+  font-weight: 800;
+  font-family: "Montserrat", sans-serif;
+  text-decoration: none;
+  justify-content: center;
+}
+
+.slide-track img {
+  width: 30%;
+  height: auto;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.slide-track a:hover img {
+  transform: scale(1.05);
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* slider */
+/* .flexscontthear */
+.flexscontthear {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 10px;
+  justify-content: space-around;
+}
+.etxdiv {
+  padding: 30px 80px;
+  backdrop-filter: blur(5px);
+  background-color: rgba(87, 87, 87, 0.096);
+  border: solid 2px rgba(112, 112, 112, 0.123);
+  border-radius: 3px;
+}
+/* flexscontthear */
