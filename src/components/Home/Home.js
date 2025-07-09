@@ -208,18 +208,87 @@ const Home = ({ userData }) => {
           Я покупатель
         </button>
       </div>
-      {/* <div className="contbakdrtitptit">
-        <p className="ptit">
-          <span className="span_h1greit">GGselGift</span> — это безопасная и
-          удобная платформа, созданная специально для продажи NFT-подарков.
-          <br />
-          <div className="slidecontbakdrtitptit"></div>
-          Мы выступаем гарантом сделки между продавцом и покупателем,
-          <br />
-          обеспечивая обе стороны защитой, прозрачностью и простотой
-          взаимодействия.
-        </p>
-      </div> */}
+      <div className="podtexttextraskaz">
+        <div className="nasztex">
+          <h1 className="podstext">
+            Как работает <span className="podtitlog">GGselGift</span>
+          </h1>
+          <p className="ppodtex">
+            Интересно, как всё устроено? В разделе
+            <br></br>
+            About{" "}
+            <span
+              style={{
+                fontSize: "20px",
+                verticalAlign: "middle",
+              }}
+              class="material-symbols-outlined"
+            >
+              <span class="material-symbols-outlined">page_info</span>
+            </span>{" "}
+            вы найдёте все ответы!
+          </p>
+        </div>
+      </div>
+      <footer>
+        <div className="divsfootcontfut">
+          <div className="bloksfoot">
+            <div className="flexsfo">
+              <img
+                className="logoimg"
+                src="https://gglead.net/skin/ggleadv2/ru/images/tild3736-3036-4766-b163-333533623537__favicon_4.ico"
+              ></img>
+              <div className="divstex">
+                <h1>GGselOficial</h1>
+              </div>
+              <div className="lfsot">
+                <a href="#" class="social-icon">
+                  <i
+                    className="fa-brands fa-instagram"
+                    style={{
+                      color: "rgba(100, 100, 100, 0.52)",
+                      fontSize: "20px",
+                    }}
+                  ></i>
+                </a>
+                <a href="#" class="social-icon">
+                  <i
+                    className="fa-brands fa-invision"
+                    style={{
+                      color: "rgba(100, 100, 100, 0.52)",
+                      fontSize: "20px",
+                    }}
+                  ></i>
+                </a>
+                <a href="#" class="social-icon">
+                  <i
+                    className="fa-solid fa-envelope-open"
+                    style={{
+                      color: "rgba(100, 100, 100, 0.52)",
+                      fontSize: "20px",
+                    }}
+                  ></i>
+                </a>
+                <a href="#" class="social-icon">
+                  <i
+                    className="fa-solid fa-earth-europe"
+                    style={{
+                      color: "rgba(100, 100, 100, 0.52)",
+                      fontSize: "20px",
+                    }}
+                  ></i>
+                </a>
+              </div>
+            </div>
+
+            <p className="pfotesp">
+              © 2025 AppVerse. Все права защищены. Использование сайта означает
+              согласие с <a href="#">политикой конфиденциальности</a> и{" "}
+              <a href="#">условиями использования</a>.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
