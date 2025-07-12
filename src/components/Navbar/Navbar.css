@@ -17,7 +17,7 @@
   border-radius: 10px;
   padding: 0 20px;
   z-index: 100;
-  transition: transform 0.7s ease;
+  transition: transform 0.5s ease;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
@@ -102,7 +102,7 @@
   top: -67%;
   border-radius: 50%;
   border: 6px solid #141716;
-  background: #000000;
+  background: #0f0f0f;
   transition: 0.3s;
   z-index: 0;
 }
