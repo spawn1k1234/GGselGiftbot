@@ -4,7 +4,38 @@
 }
 .flstep {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 300px;
+  flex-direction: column; /* Чтобы элементы шли сверху вниз */
+  justify-content: center; /* Центрирование по вертикали */
+  align-items: center; /* Центрирование по горизонтали */
+  height: 100vh; /* Занимает весь экран */
+  text-align: center; /* Выравнивание текста */
 }
+
+.flesbloks {
+  width: 90%;
+  background-color: antiquewhite;
+  padding: 10px;
+}
+.suggestions-list {
+  list-style: none;
+  padding: 0;
+  margin: 5px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+  background: white;
+  position: absolute;
+  z-index: 1000;
+  width: 100%;
+}
+
+.suggestions-list li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.suggestions-list li:hover {
+  background-color: #f0f0f0;
+}
+/* ____ */

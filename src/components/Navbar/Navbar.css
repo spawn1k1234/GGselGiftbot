@@ -1,71 +1,152 @@
-.navflnavigat {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  height: 100%;
-}
-.ulflex {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  display: flex;
-  gap: 20px;
-  list-style: none;
-  background-color: rgba(0, 0, 0, 0.295);
-  padding: 10px 0;
-  height: 40px;
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500&display=swap");
+
+.navigation {
+  width: 360px;
+  height: 70px;
+  background-color: rgb(85 85 85 / 5%);
   backdrop-filter: blur(10px);
-  z-index: 2;
-  align-items: center;
-  justify-content: space-evenly;
-}
-.ulflex li a {
-  position: relative;
-  color: #bae9c4;
-  text-decoration: none;
-  padding: 10px 10px;
-  border-radius: 15px;
-  transition: all 0.3s ease;
-  transform: scale(1);
-  overflow: hidden;
-  font-size: 12px;
-  font-family: "Montserrat", sans-serif;
-  font-weight: 200;
+  border-top: solid 5px #141716;
+  position: fixed;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 3px;
+  border-radius: 10px;
+  padding: 0 20px;
+  z-index: 100;
+  transition: transform 0.7s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* Анимированная полоска сверху */
-.ulflex li a::before {
+.navigation.navbar-hidden {
+  transform: translateX(-50%) translateY(100px);
+}
+
+.listWrap {
+  list-style: none;
+  display: flex;
+  width: 100%;
+  position: relative;
+  flex-wrap: wrap;
+  gap: 25px;
+  padding: 0px 10px;
+  justify-content: space-between;
+}
+
+.listWrap li {
+  width: 50px;
+  height: 50px;
+  position: relative;
+  z-index: 1;
+}
+
+.listWrap li a {
+  text-decoration: none;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  font-weight: 500;
+  width: 100%;
+  color: #ffffff;
+}
+
+.listWrap li a:hover {
+  text-decoration: none;
+}
+
+.listWrap li a .icon {
+  position: relative;
+  display: block;
+  line-height: 60px;
+  text-align: center;
+  transition: 0.5s;
+  color: var(--bg-default);
+}
+
+.listWrap li a .icon ion-icon {
+  font-size: 2.2rem;
+}
+
+.listWrap li a .text {
+  position: absolute;
+  color: var(--bg-default);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  transition: 0.5s;
+  transform: translateY(20px);
+  opacity: 0;
+  z-index: 1;
+  font-family: "Montserrat", sans-serif;
+}
+
+.listWrap li.active a .icon {
+  color: var(--primary-white);
+  transform: translateY(-25px);
+}
+
+.listWrap li.active a .text {
+  opacity: 1;
+  transform: translateY(10px);
+}
+
+.listWrap .indicator {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  top: -67%;
+  border-radius: 50%;
+  border: 6px solid #141716;
+  background: #000000;
+  transition: 0.3s;
+  z-index: 0;
+}
+
+.listWrap .indicator:before,
+.listWrap .indicator:after {
   content: "";
   position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%) scaleX(0);
-  height: 3px;
-  width: 100%;
-  background-color: #2ad154;
-  transition: transform 0.3s ease;
-  transform-origin: center;
+  top: 35%;
+  width: 20px;
+  height: 20px;
+  background: #05050500;
 }
 
-/* При наведении полоска появляется */
-.ulflex li a:hover::before,
-.ulflex li a:focus::before,
-.ulflex li a:active::before {
-  transform: translateX(-50%) scaleX(1);
+.listWrap .indicator:after {
+  right: -20px;
+  box-shadow: 0px -5px 0 0 #141716;
+  border-top-left-radius: 20px;
 }
 
-/* Hover эффекты */
-.ulflex li a:hover {
-  transform: scale(1.05);
+.listWrap .indicator:before {
+  left: -20px;
+  box-shadow: 0px -5px 0 0 #141716;
+  border-top-right-radius: 20px;
 }
 
-/* Active */
-.ulflex li a:active {
-  transform: scale(0.96);
-  opacity: 0.85;
+.listWrap li:nth-child(1).active ~ .indicator {
+  transform: translateX(calc(80px * 0));
+}
+
+.listWrap li:nth-child(2).active ~ .indicator {
+  transform: translateX(calc(82px * 1 + (6px * 2)));
+}
+
+.listWrap li:nth-child(3).active ~ .indicator {
+  transform: translateX(calc(82px * 2 + (6px * 4) + 1px));
+}
+
+.listWrap li:nth-child(4).active ~ .indicator {
+  transform: translateX(calc(82px * 3 + (6px * 6) + 2px));
+}
+
+:root {
+  --bg-default: #ffffff;
+  --primary-white: #ffffff;
+  --primary-red: #ff3c41;
 }
