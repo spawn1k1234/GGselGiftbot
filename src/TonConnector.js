@@ -206,7 +206,7 @@ import {
 } from "@tonconnect/ui-react";
 import { database, ref, set, get } from "./firebase"; // ✅ get добавлен
 
-const TonConnector = ({ userId }) => {
+const TonConnector = ({ telegramUserId }) => {
   const [tonConnectUI] = useTonConnectUI();
   const walletAddress = useTonAddress();
   const wallet = useTonWallet();
@@ -216,32 +216,37 @@ const TonConnector = ({ userId }) => {
   const [txStatus, setTxStatus] = useState("");
   const [connectionError, setConnectionError] = useState("");
 
-  //   const RECIPIENT_ADDRESS = "UQDNqYE7mTZnTRKdyZuu5ITXVJEnPt4co-kSqBNZ_oHZn1Q7";
   const RECIPIENT_ADDRESS = "UQAEbqdLmHY-gxbUG9eqeldLX8yQDjUDOo1R5NHYjlpIlGet";
   const tonAmount = amount * 0.002;
   const nanoAmount = Math.floor(tonAmount * 1e9).toString();
 
-  // ✅ Загружаем количество монет при старте
+  // Загружаем данные пользователя по ID Telegram
   useEffect(() => {
-    const fetchCoins = async () => {
+    const fetchUserData = async () => {
       try {
-        const userRef = ref(database, `users/${userId}`);
+        const userRef = ref(database, `users/${telegramUserId}`); // Используем telegramUserId
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
           const userData = snapshot.val();
           if (userData?.coins) {
             setCoins(userData.coins);
           }
+        } else {
+          // Если данных нет, создаем нового пользователя
+          await set(userRef, {
+            coins: 0,
+            lastPurchase: Date.now(),
+          });
         }
       } catch (error) {
         console.error("Ошибка при загрузке монет из Firebase:", error);
       }
     };
 
-    if (userId) {
-      fetchCoins();
+    if (telegramUserId) {
+      fetchUserData();
     }
-  }, [userId]);
+  }, [telegramUserId]);
 
   const buyCoins = async () => {
     if (!wallet) {
@@ -273,13 +278,16 @@ const TonConnector = ({ userId }) => {
       setCoins(newCoins);
       setTxStatus(`Успешно! ${amount} монет зачислено.`);
 
-      const userRef = ref(database, `users/${userId}`);
+      const userRef = ref(database, `users/${telegramUserId}`);
       await set(userRef, {
         coins: newCoins,
         lastPurchase: Date.now(),
       });
 
-      const txRef = ref(database, `users/${userId}/transactions/${Date.now()}`);
+      const txRef = ref(
+        database,
+        `users/${telegramUserId}/transactions/${Date.now()}`
+      );
       await set(txRef, {
         amount,
         tonAmount,
@@ -306,7 +314,10 @@ const TonConnector = ({ userId }) => {
       setTxStatus(errorMessage);
       setConnectionError(errorMessage);
 
-      const txRef = ref(database, `users/${userId}/transactions/${Date.now()}`);
+      const txRef = ref(
+        database,
+        `users/${telegramUserId}/transactions/${Date.now()}`
+      );
       await set(txRef, {
         amount,
         tonAmount,
