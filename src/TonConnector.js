@@ -1,126 +1,193 @@
-// import React, { useState, useEffect } from "react";
-// import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react";
+// import React, { useState } from "react";
+// import {
+//   useTonConnectUI,
+//   useTonAddress,
+//   useTonWallet,
+// } from "@tonconnect/ui-react";
 // import { database, ref, set } from "./firebase";
 
 // const TonConnector = ({ userId }) => {
 //   const [tonConnectUI] = useTonConnectUI();
 //   const walletAddress = useTonAddress();
+//   const wallet = useTonWallet();
 //   const [coins, setCoins] = useState(0);
 //   const [amount, setAmount] = useState(10);
 //   const [loading, setLoading] = useState(false);
 //   const [txStatus, setTxStatus] = useState("");
+//   const [connectionError, setConnectionError] = useState("");
 
-//   useEffect(() => {
-//     if (userId && walletAddress) {
-//       const userRef = ref(database, `users/${userId}`);
-//       set(
-//         userRef,
-//         {
-//           walletAddress,
-//           lastActive: Date.now(),
-//         },
-//         { merge: true }
-//       );
-//     }
-//   }, [userId, walletAddress]);
+//   const RECIPIENT_ADDRESS = "UQDNqYE7mTZnTRKdyZuu5ITXVJEnPt4co-kSqBNZ_oHZn1Q7";
+//   const tonAmount = amount * 0.004;
+//   const nanoAmount = Math.floor(tonAmount * 1e9).toString();
 
 //   const buyCoins = async () => {
-//     if (!walletAddress) {
-//       alert("Сначала подключите кошелек!");
+//     if (!wallet) {
+//       setConnectionError("Кошелек не подключен");
 //       return;
 //     }
 
 //     setLoading(true);
-//     setTxStatus("Обработка транзакции...");
+//     setTxStatus("Подготовка транзакции...");
 
 //     try {
-//       const tonAmount = (amount * 0.004).toFixed(3);
-
-//       await tonConnectUI.sendTransaction({
+//       const transaction = {
 //         validUntil: Math.floor(Date.now() / 1000) + 300,
 //         messages: [
 //           {
-//             address: "UQDNqYE7mTZnTRKdyZuu5ITXVJEnPt4co-kSqBNZ_oHZn1Q7",
-//             amount: (tonAmount * 1000000000).toString(),
-//             payload: JSON.stringify({ userId, amount }),
+//             address: RECIPIENT_ADDRESS,
+//             amount: nanoAmount,
+//             // Убираем payload, если вызывает ошибку:
+//             // payload: encodePayload({...})
 //           },
 //         ],
-//       });
+//       };
+
+//       console.log("Sending TX:", transaction);
+
+//       const result = await tonConnectUI.sendTransaction(transaction);
+
+//       if (!result?.boc) throw new Error("Не получен хеш транзакции");
 
 //       const newCoins = coins + amount;
 //       setCoins(newCoins);
+//       setTxStatus(`Успешно! ${amount} монет зачислено.`);
 
-//       const userRef = ref(database, `users/${userId}`);
+//       // Сохраняем успешную транзакцию
+//       const txRef = ref(database, `users/${userId}/transactions/${Date.now()}`);
 //       await set(
-//         userRef,
+//         txRef,
 //         {
-//           coins: newCoins,
-//           lastPurchase: Date.now(),
+//           amount,
+//           tonAmount,
+//           status: "completed",
+//           txHash: result.boc,
+//           timestamp: Date.now(),
 //         },
 //         { merge: true }
 //       );
-
-//       setTxStatus(`Успешно! ${amount} монет зачислено.`);
 //     } catch (error) {
-//       console.error("Ошибка транзакции:", error);
-//       setTxStatus("Ошибка транзакции");
+//       console.error("TX error:", error);
+
+//       let errorMessage = "Ошибка транзакции";
+//       const msg = error.message || "";
+
+//       if (msg.includes("Payload"))
+//         errorMessage = "Некорректные параметры платежа";
+//       else if (msg.includes("User rejected"))
+//         errorMessage = "Вы отменили транзакцию";
+//       else if (msg.includes("insufficient"))
+//         errorMessage = "Недостаточно средств";
+//       else if (msg.includes("Request to the wallet contains errors")) {
+//         errorMessage = "Ошибка в реквизитах транзакции";
+//       }
+
+//       setTxStatus(errorMessage);
+//       setConnectionError(errorMessage);
+
+//       const txRef = ref(database, `users/${userId}/transactions/${Date.now()}`);
+//       await set(
+//         txRef,
+//         {
+//           amount,
+//           tonAmount,
+//           status: "failed",
+//           error: errorMessage,
+//           errorDetails: msg,
+//           timestamp: Date.now(),
+//         },
+//         { merge: true }
+//       );
 //     } finally {
 //       setLoading(false);
 //     }
 //   };
 
-//   return (
-//     <div style={{ maxWidth: "500px", margin: "0 auto" }}>
-//       {walletAddress ? (
-//         <div>
-//           <p>
-//             Кошелек: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
-//           </p>
-//           <p>Ваши монеты: {coins}</p>
+//   const handleConnectWallet = async () => {
+//     try {
+//       setConnectionError("");
+//       await tonConnectUI.connectWallet();
+//     } catch (error) {
+//       console.error("Connect error:", error);
+//       setConnectionError("Не удалось подключить кошелек TON");
+//     }
+//   };
 
-//           <div style={{ margin: "20px 0" }}>
-//             <h3>Купить монеты</h3>
-//             <input
-//               type="number"
-//               min="10"
-//               value={amount}
-//               onChange={(e) => setAmount(Number(e.target.value))}
-//               style={{ padding: "8px", marginRight: "10px" }}
-//             />
-//             <button
-//               onClick={buyCoins}
-//               disabled={loading}
-//               style={{
-//                 padding: "10px 20px",
-//                 background: "#0088cc",
-//                 color: "white",
-//                 border: "none",
-//                 borderRadius: "5px",
-//               }}
-//             >
-//               {loading ? "Отправка..." : "Купить"}
-//             </button>
-//             <p>Стоимость: {(amount * 0.004).toFixed(3)} TON</p>
-//           </div>
+//   return (
+//     <div style={{ maxWidth: 500, margin: "0 auto", padding: 20 }}>
+//       {connectionError && (
+//         <div
+//           style={{
+//             padding: 15,
+//             background: "#ffebee",
+//             color: "#c62828",
+//             borderRadius: 8,
+//             marginBottom: 20,
+//           }}
+//         >
+//           {connectionError}
+//         </div>
+//       )}
+
+//       {wallet ? (
+//         <>
+//           <h2>TON Казино</h2>
+//           <p>
+//             Кошелек: {walletAddress?.slice(0, 6)}…{walletAddress?.slice(-4)}
+//           </p>
+//           <p>Монеты: {coins}</p>
+
+//           <h3>Купить монеты</h3>
+//           <input
+//             type="number"
+//             min="10"
+//             value={amount}
+//             onChange={(e) => setAmount(Math.max(10, Number(e.target.value)))}
+//             style={{ width: "100%", padding: 10, margin: "10px 0" }}
+//           />
+//           <p>Стоимость: {tonAmount.toFixed(3)} TON</p>
+//           <button
+//             onClick={buyCoins}
+//             disabled={loading}
+//             style={{
+//               padding: 12,
+//               width: "100%",
+//               background: loading ? "#ccc" : "#1976d2",
+//               color: "white",
+//               border: "none",
+//               borderRadius: 8,
+//               cursor: "pointer",
+//             }}
+//           >
+//             {loading ? "Обработка..." : "Купить"}
+//           </button>
 
 //           {txStatus && (
-//             <p
-//               style={{ color: txStatus.includes("Успешно") ? "green" : "red" }}
+//             <div
+//               style={{
+//                 marginTop: 20,
+//                 padding: 10,
+//                 background: txStatus.includes("Успешно")
+//                   ? "#e8f5e9"
+//                   : "#ffebee",
+//                 color: txStatus.includes("Успешно") ? "#2e7d32" : "#c62828",
+//                 borderRadius: 8,
+//               }}
 //             >
 //               {txStatus}
-//             </p>
+//             </div>
 //           )}
-//         </div>
+//         </>
 //       ) : (
 //         <button
-//           onClick={() => tonConnectUI.connectWallet()}
+//           onClick={handleConnectWallet}
 //           style={{
 //             padding: "15px 30px",
-//             background: "#0088cc",
+//             background: "#1976d2",
 //             color: "white",
 //             border: "none",
-//             borderRadius: "5px",
-//             fontSize: "16px",
+//             borderRadius: 8,
+//             fontSize: 16,
+//             cursor: "pointer",
 //           }}
 //         >
 //           Подключить TON кошелек
@@ -137,7 +204,7 @@ import {
   useTonAddress,
   useTonWallet,
 } from "@tonconnect/ui-react";
-import { database, ref, set } from "./firebase";
+import { database, ref, set, get } from "./firebase"; // ✅ get добавлен
 
 const TonConnector = ({ userId }) => {
   const [tonConnectUI] = useTonConnectUI();
@@ -148,91 +215,35 @@ const TonConnector = ({ userId }) => {
   const [loading, setLoading] = useState(false);
   const [txStatus, setTxStatus] = useState("");
   const [connectionError, setConnectionError] = useState("");
-  const [balance, setBalance] = useState(null);
 
-  // Валидный адрес получателя
-  const RECIPIENT_ADDRESS = "UQDNqYE7mTZnTRKdyZuu5ITXVJEnPt4co-kSqBNZ_oHZn1Q7";
+  //   const RECIPIENT_ADDRESS = "UQDNqYE7mTZnTRKdyZuu5ITXVJEnPt4co-kSqBNZ_oHZn1Q7";
+  const RECIPIENT_ADDRESS =
+    "  UQAEbqdLmHY-gxbUG9eqeldLX8yQDjUDOo1R5NHYjlpIlGet";
+  const tonAmount = amount * 0.004;
+  const nanoAmount = Math.floor(tonAmount * 1e9).toString();
 
-  // Инициализация подключения
+  // ✅ Загружаем количество монет при старте
   useEffect(() => {
-    const initializeConnection = async () => {
+    const fetchCoins = async () => {
       try {
-        if (wallet) {
-          setConnectionError("");
-          await checkBalance();
-          return;
-        }
-
-        // Автоматическое восстановление соединения
-        const connectionSource = {
-          jsBridgeKey: "tonconnect",
-        };
-
-        await tonConnectUI.restoreConnection(connectionSource);
-
-        if (!wallet) {
-          const unsubscribe = tonConnectUI.onStatusChange((w) => {
-            if (w) {
-              setConnectionError("");
-              checkBalance();
-              unsubscribe();
-            }
-          });
-
-          return () => unsubscribe();
+        const userRef = ref(database, `users/${userId}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+          if (userData?.coins) {
+            setCoins(userData.coins);
+          }
         }
       } catch (error) {
-        console.error("Connection error:", error);
-        handleConnectionError(error);
+        console.error("Ошибка при загрузке монет из Firebase:", error);
       }
     };
 
-    initializeConnection();
-  }, [wallet]);
-
-  // Проверка баланса
-  const checkBalance = async () => {
-    try {
-      if (!tonConnectUI) return;
-
-      const b = await tonConnectUI.getBalance();
-      setBalance(Number(b) / 1000000000); // Конвертация в TON
-    } catch (error) {
-      console.error("Balance check error:", error);
+    if (userId) {
+      fetchCoins();
     }
-  };
+  }, [userId]);
 
-  // Обработка ошибок подключения
-  const handleConnectionError = (error) => {
-    let errorMessage = "Ошибка подключения к кошельку";
-
-    if (error.message.includes("Connection refused")) {
-      errorMessage = "Кошелек отклонил подключение";
-    } else if (error.message.includes("Timeout")) {
-      errorMessage = "Время ожидания истекло";
-    }
-
-    setConnectionError(errorMessage);
-  };
-
-  // Подключение кошелька
-  const handleConnectWallet = async () => {
-    try {
-      setConnectionError("");
-      setTxStatus("Открываем кошелек...");
-
-      await tonConnectUI.connectWallet({
-        jsBridgeKey: "tonconnect",
-      });
-
-      setTxStatus("");
-    } catch (error) {
-      console.error("Wallet connection failed:", error);
-      handleConnectionError(error);
-    }
-  };
-
-  // Покупка монет
   const buyCoins = async () => {
     if (!wallet) {
       setConnectionError("Кошелек не подключен");
@@ -243,381 +254,163 @@ const TonConnector = ({ userId }) => {
     setTxStatus("Подготовка транзакции...");
 
     try {
-      const tonAmount = amount * 0.004;
-      const nanoAmount = Math.floor(tonAmount * 1000000000).toString();
-
-      const payload = {
-        userId,
-        amount,
-        timestamp: Date.now(),
-        comment: `Purchase ${amount} coins`,
-        app: "TON Casino",
-      };
-
       const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 300,
         messages: [
           {
             address: RECIPIENT_ADDRESS,
             amount: nanoAmount,
-            payload: btoa(JSON.stringify(payload)),
           },
         ],
       };
 
-      // Исправленный блок с Promise.race
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error("Timeout")), 30000)
-      );
+      console.log("Sending TX:", transaction);
 
-      const result = await Promise.race([
-        tonConnectUI.sendTransaction(transaction),
-        timeoutPromise,
-      ]);
+      const result = await tonConnectUI.sendTransaction(transaction);
 
-      console.log("Transaction result:", result);
+      if (!result?.boc) throw new Error("Не получен хеш транзакции");
 
       const newCoins = coins + amount;
       setCoins(newCoins);
       setTxStatus(`Успешно! ${amount} монет зачислено.`);
-      await checkBalance();
 
       const userRef = ref(database, `users/${userId}`);
-      await set(
-        userRef,
-        {
-          coins: newCoins,
-          lastPurchase: Date.now(),
-          transactions: {
-            [Date.now()]: {
-              amount,
-              tonAmount,
-              status: "completed",
-              txHash: result.boc,
-              timestamp: Date.now(),
-            },
-          },
-        },
-        { merge: true }
-      );
+      await set(userRef, {
+        coins: newCoins,
+        lastPurchase: Date.now(),
+      });
+
+      const txRef = ref(database, `users/${userId}/transactions/${Date.now()}`);
+      await set(txRef, {
+        amount,
+        tonAmount,
+        status: "completed",
+        txHash: result.boc,
+        timestamp: Date.now(),
+      });
     } catch (error) {
-      console.error("Transaction error:", error);
-      handleTransactionError(error);
+      console.error("TX error:", error);
+
+      let errorMessage = "Ошибка транзакции";
+      const msg = error.message || "";
+
+      if (msg.includes("Payload"))
+        errorMessage = "Некорректные параметры платежа";
+      else if (msg.includes("User rejected"))
+        errorMessage = "Вы отменили транзакцию";
+      else if (msg.includes("insufficient"))
+        errorMessage = "Недостаточно средств";
+      else if (msg.includes("Request to the wallet contains errors")) {
+        errorMessage = "Ошибка в реквизитах транзакции";
+      }
+
+      setTxStatus(errorMessage);
+      setConnectionError(errorMessage);
+
+      const txRef = ref(database, `users/${userId}/transactions/${Date.now()}`);
+      await set(txRef, {
+        amount,
+        tonAmount,
+        status: "failed",
+        error: errorMessage,
+        errorDetails: msg,
+        timestamp: Date.now(),
+      });
     } finally {
       setLoading(false);
     }
   };
-  // Обработка ошибок транзакции
-  const handleTransactionError = (error) => {
-    let errorMessage = "Ошибка транзакции";
-    let errorDetails = error.message;
 
-    if (error.message.includes("BadRequestError")) {
-      errorMessage = "Некорректные параметры транзакции";
-    } else if (error.message.includes("User rejected")) {
-      errorMessage = "Вы отменили транзакцию";
-    } else if (error.message.includes("Timeout")) {
-      errorMessage = "Время ожидания истекло";
-    } else if (error.message.includes("insufficient")) {
-      errorMessage = "Недостаточно средств";
+  const handleConnectWallet = async () => {
+    try {
+      setConnectionError("");
+      await tonConnectUI.connectWallet();
+    } catch (error) {
+      console.error("Connect error:", error);
+      setConnectionError("Не удалось подключить кошелек TON");
     }
-
-    setTxStatus(errorMessage);
-    setConnectionError(errorMessage);
-
-    // Сохраняем ошибку
-    const userRef = ref(database, `users/${userId}`);
-    set(
-      userRef,
-      {
-        transactions: {
-          [Date.now()]: {
-            amount,
-            tonAmount: amount * 0.004,
-            status: "failed",
-            error: errorMessage,
-            errorDetails: JSON.stringify({
-              message: error.message,
-              stack: error.stack,
-              name: error.name,
-            }),
-          },
-        },
-      },
-      { merge: true }
-    );
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "500px",
-        margin: "0 auto",
-        padding: "20px",
-        fontFamily: "'Roboto', sans-serif",
-      }}
-    >
-      {/* Блок ошибок */}
-      {(connectionError || txStatus.includes("Ошибка")) && (
+    <div style={{ maxWidth: 500, margin: "0 auto", padding: 20 }}>
+      {connectionError && (
         <div
           style={{
-            padding: "15px",
+            padding: 15,
             background: "#ffebee",
             color: "#c62828",
-            borderRadius: "8px",
-            marginBottom: "20px",
-            borderLeft: "4px solid #ef5350",
+            borderRadius: 8,
+            marginBottom: 20,
           }}
         >
-          <strong>{connectionError || txStatus}</strong>
-          {connectionError.includes("подключ") && (
-            <div style={{ marginTop: "10px" }}>
-              <p>Попробуйте:</p>
-              <ol style={{ paddingLeft: "20px", margin: "5px 0" }}>
-                <li>Обновить страницу (F5)</li>
-                <li>Установить Tonkeeper (tonkeeper.com)</li>
-                <li>Проверить расширение кошелька</li>
-              </ol>
-            </div>
-          )}
+          {connectionError}
         </div>
       )}
 
-      {/* Успешные статусы */}
-      {txStatus && !txStatus.includes("Ошибка") && (
-        <div
-          style={{
-            padding: "15px",
-            background: "#e8f5e9",
-            color: "#2e7d32",
-            borderRadius: "8px",
-            marginBottom: "20px",
-            borderLeft: "4px solid #4caf50",
-          }}
-        >
-          {txStatus}
-        </div>
-      )}
-
-      {/* Основной интерфейс */}
       {wallet ? (
-        <div
-          style={{
-            background: "#ffffff",
-            borderRadius: "12px",
-            padding: "20px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h2
-            style={{
-              marginTop: 0,
-              marginBottom: "20px",
-              color: "#1976d2",
-            }}
-          >
-            TON Казино
-          </h2>
+        <>
+          <h2>TON Казино</h2>
+          <p>
+            Кошелек: {walletAddress?.slice(0, 6)}…{walletAddress?.slice(-4)}
+          </p>
+          <p>Монеты: {coins}</p>
 
-          <div
-            style={{
-              background: "#f5f5f5",
-              borderRadius: "8px",
-              padding: "15px",
-              marginBottom: "20px",
-            }}
-          >
-            <p style={{ margin: "5px 0" }}>
-              <strong>Кошелек:</strong> {walletAddress.slice(0, 6)}...
-              {walletAddress.slice(-4)}
-            </p>
-            <p style={{ margin: "5px 0" }}>
-              <strong>Провайдер:</strong> {wallet.provider || "unknown"}
-            </p>
-            {balance !== null && (
-              <p style={{ margin: "5px 0" }}>
-                <strong>Баланс:</strong> {balance.toFixed(3)} TON
-              </p>
-            )}
-            <p style={{ margin: "5px 0" }}>
-              <strong>Ваши монеты:</strong> {coins}
-            </p>
-          </div>
-
-          <div>
-            <h3 style={{ marginBottom: "15px" }}>Купить монеты</h3>
-
-            <div style={{ marginBottom: "15px" }}>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontWeight: "500",
-                }}
-              >
-                Количество монет (мин. 10):
-              </label>
-              <input
-                type="number"
-                min="10"
-                step="1"
-                value={amount}
-                onChange={(e) =>
-                  setAmount(Math.max(10, Number(e.target.value)))
-                }
-                style={{
-                  padding: "12px",
-                  width: "100%",
-                  border: "1px solid #ddd",
-                  borderRadius: "8px",
-                  fontSize: "16px",
-                }}
-              />
-            </div>
-
-            <div
-              style={{
-                background: "#e3f2fd",
-                padding: "12px",
-                borderRadius: "8px",
-                marginBottom: "20px",
-              }}
-            >
-              <p style={{ margin: "5px 0" }}>
-                <strong>Стоимость:</strong> {(amount * 0.004).toFixed(3)} TON
-              </p>
-              {balance !== null && balance < amount * 0.004 && (
-                <p
-                  style={{
-                    margin: "5px 0",
-                    color: "#d32f2f",
-                    fontWeight: "500",
-                  }}
-                >
-                  ⚠️ Недостаточно средств на балансе
-                </p>
-              )}
-            </div>
-
-            <button
-              onClick={buyCoins}
-              disabled={
-                loading || (balance !== null && balance < amount * 0.004)
-              }
-              style={{
-                padding: "14px",
-                width: "100%",
-                background: loading
-                  ? "#b0bec5"
-                  : balance !== null && balance < amount * 0.004
-                  ? "#e0e0e0"
-                  : "#1976d2",
-                color: "white",
-                border: "none",
-                borderRadius: "8px",
-                fontSize: "16px",
-                fontWeight: "500",
-                cursor: "pointer",
-                transition: "background 0.3s",
-              }}
-            >
-              {loading ? (
-                <>
-                  <span style={{ display: "inline-block", marginRight: "8px" }}>
-                    🔄
-                  </span>
-                  Обработка...
-                </>
-              ) : (
-                `Купить ${amount} монет за ${(amount * 0.004).toFixed(3)} TON`
-              )}
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div
-          style={{
-            textAlign: "center",
-            background: "#ffffff",
-            borderRadius: "12px",
-            padding: "25px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h2
-            style={{
-              marginTop: 0,
-              marginBottom: "20px",
-              color: "#1976d2",
-            }}
-          >
-            Подключите TON кошелек
-          </h2>
-
+          <h3>Купить монеты</h3>
+          <input
+            type="number"
+            min="10"
+            value={amount}
+            onChange={(e) => setAmount(Math.max(10, Number(e.target.value)))}
+            style={{ width: "100%", padding: 10, margin: "10px 0" }}
+          />
+          <p>Стоимость: {tonAmount.toFixed(3)} TON</p>
           <button
-            onClick={handleConnectWallet}
+            onClick={buyCoins}
+            disabled={loading}
             style={{
-              padding: "14px 28px",
-              background: "#1976d2",
+              padding: 12,
+              width: "100%",
+              background: loading ? "#ccc" : "#1976d2",
               color: "white",
               border: "none",
-              borderRadius: "8px",
-              fontSize: "16px",
-              fontWeight: "500",
+              borderRadius: 8,
               cursor: "pointer",
-              marginBottom: "20px",
-              transition: "background 0.3s",
-              boxShadow: "0 2px 8px rgba(25, 118, 210, 0.3)",
             }}
           >
-            Подключить кошелек
+            {loading ? "Обработка..." : "Купить"}
           </button>
 
-          <div
-            style={{
-              textAlign: "left",
-              background: "#f5f5f5",
-              borderRadius: "8px",
-              padding: "16px",
-              marginTop: "20px",
-            }}
-          >
-            <h3 style={{ marginTop: 0 }}>Инструкция:</h3>
-            <ol
+          {txStatus && (
+            <div
               style={{
-                paddingLeft: "20px",
-                margin: "12px 0",
+                marginTop: 20,
+                padding: 10,
+                background: txStatus.includes("Успешно")
+                  ? "#e8f5e9"
+                  : "#ffebee",
+                color: txStatus.includes("Успешно") ? "#2e7d32" : "#c62828",
+                borderRadius: 8,
               }}
             >
-              <li style={{ marginBottom: "8px" }}>
-                Установите Tonkeeper (tonkeeper.com) или другой TON кошелек
-              </li>
-              <li style={{ marginBottom: "8px" }}>
-                Обновите страницу после установки
-              </li>
-              <li style={{ marginBottom: "8px" }}>
-                Нажмите "Подключить кошелек"
-              </li>
-              <li>Выберите ваш кошелек в появившемся окне</li>
-            </ol>
-
-            <div style={{ marginTop: "15px" }}>
-              <p style={{ margin: "8px 0" }}>
-                <strong>Поддерживаемые кошельки:</strong>
-              </p>
-              <ul
-                style={{
-                  paddingLeft: "20px",
-                  margin: "8px 0",
-                }}
-              >
-                <li style={{ marginBottom: "6px" }}>Tonkeeper</li>
-                <li style={{ marginBottom: "6px" }}>OpenMask</li>
-                <li style={{ marginBottom: "6px" }}>MyTonWallet</li>
-              </ul>
+              {txStatus}
             </div>
-          </div>
-        </div>
+          )}
+        </>
+      ) : (
+        <button
+          onClick={handleConnectWallet}
+          style={{
+            padding: "15px 30px",
+            background: "#1976d2",
+            color: "white",
+            border: "none",
+            borderRadius: 8,
+            fontSize: 16,
+            cursor: "pointer",
+          }}
+        >
+          Подключить TON кошелек
+        </button>
       )}
     </div>
   );
