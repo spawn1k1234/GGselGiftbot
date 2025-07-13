@@ -1,95 +1,71 @@
 import React, { useState, useEffect } from "react";
-// Правильные импорты:
-// Импорт firebase из того же каталога
-import { database, ref, set, onValue } from "./firebase";
+import { useTonConnectUI, useTonAddress } from "@tonconnect/ui-react";
+import { database, ref, set } from "./firebase";
 
 const TonConnector = ({ userId }) => {
-  const [walletAddress, setWalletAddress] = useState("");
-  const [balance, setBalance] = useState(0);
+  const [tonConnectUI] = useTonConnectUI();
+  const walletAddress = useTonAddress();
   const [coins, setCoins] = useState(0);
-  const [amountToBuy, setAmountToBuy] = useState(10);
-  const [isLoading, setIsLoading] = useState(false);
-  const [transactionStatus, setTransactionStatus] = useState("");
+  const [amount, setAmount] = useState(10);
+  const [loading, setLoading] = useState(false);
+  const [txStatus, setTxStatus] = useState("");
 
-  // Загрузка данных пользователя
   useEffect(() => {
-    if (userId) {
-      const userRef = ref(database, `casinoord/${userId}`);
-      onValue(userRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          setWalletAddress(data.walletAddress || "");
-          setCoins(data.coins || 0);
-          setBalance(data.balance || 0);
-        }
-      });
+    if (userId && walletAddress) {
+      const userRef = ref(database, `users/${userId}`);
+      set(
+        userRef,
+        {
+          walletAddress,
+          lastActive: Date.now(),
+        },
+        { merge: true }
+      );
     }
-  }, [userId]);
-
-  const connectWallet = async () => {
-    try {
-      if (window.ton && window.ton.isTonWallet) {
-        const accounts = await window.ton.send("ton_requestAccounts");
-        if (accounts && accounts.length > 0) {
-          setWalletAddress(accounts[0]);
-          updateUserData({ walletAddress: accounts[0] });
-        }
-      } else {
-        alert("Please install TON Wallet extension!");
-      }
-    } catch (error) {
-      console.error("Wallet connection error:", error);
-    }
-  };
-
-  const updateUserData = (updates) => {
-    const userRef = ref(database, `casinoord/${userId}`);
-    set(
-      userRef,
-      {
-        ...updates,
-        lastUpdate: Date.now(),
-      },
-      { merge: true }
-    );
-  };
+  }, [userId, walletAddress]);
 
   const buyCoins = async () => {
     if (!walletAddress) {
-      alert("Please connect your wallet first!");
+      alert("Сначала подключите кошелек!");
       return;
     }
 
-    setIsLoading(true);
-    setTransactionStatus("Processing transaction...");
+    setLoading(true);
+    setTxStatus("Обработка транзакции...");
 
     try {
-      const tonAmount = (amountToBuy * 0.004).toFixed(3); // 0.004 TON per coin
-      const recipientAddress =
-        "UQDNqYE7mTZnTRKdyZuu5ITXVJEnPt4co-kSqBNZ_oHZn1Q7";
+      const tonAmount = (amount * 0.004).toFixed(3);
 
-      // Отправка транзакции
-      await window.ton.send("ton_sendTransaction", [
-        {
-          to: recipientAddress,
-          value: tonAmount * 1000000000, // в нанотонах
-          data: JSON.stringify({ userId, amount: amountToBuy }),
-        },
-      ]);
+      await tonConnectUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 300,
+        messages: [
+          {
+            address: "UQDNqYE7mTZnTRKdyZuu5ITXVJEnPt4co-kSqBNZ_oHZn1Q7",
+            amount: (tonAmount * 1000000000).toString(),
+            payload: JSON.stringify({ userId, amount }),
+          },
+        ],
+      });
 
-      // Обновляем баланс пользователя
-      const newCoins = coins + amountToBuy;
+      const newCoins = coins + amount;
       setCoins(newCoins);
-      updateUserData({ coins: newCoins });
 
-      setTransactionStatus(
-        `Success! ${amountToBuy} coins added to your account.`
+      const userRef = ref(database, `users/${userId}`);
+      await set(
+        userRef,
+        {
+          coins: newCoins,
+          lastPurchase: Date.now(),
+        },
+        { merge: true }
       );
+
+      setTxStatus(`Успешно! ${amount} монет зачислено.`);
     } catch (error) {
-      console.error("Transaction error:", error);
-      setTransactionStatus("Transaction failed. Please try again.");
+      console.error("Ошибка транзакции:", error);
+      setTxStatus("Ошибка транзакции");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -98,70 +74,56 @@ const TonConnector = ({ userId }) => {
       {walletAddress ? (
         <div>
           <p>
-            <strong>Wallet:</strong> {walletAddress.slice(0, 6)}...
-            {walletAddress.slice(-4)}
+            Кошелек: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
           </p>
-          <p>
-            <strong>Your Coins:</strong> {coins}
-          </p>
+          <p>Ваши монеты: {coins}</p>
 
           <div style={{ margin: "20px 0" }}>
-            <h3>Buy More Coins</h3>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <input
-                type="number"
-                min="10"
-                step="10"
-                value={amountToBuy}
-                onChange={(e) => setAmountToBuy(parseInt(e.target.value) || 10)}
-                style={{ padding: "8px", width: "80px" }}
-              />
-              <span>coins (0.004 TON per coin)</span>
-            </div>
-            <p>Total: {(amountToBuy * 0.004).toFixed(3)} TON</p>
+            <h3>Купить монеты</h3>
+            <input
+              type="number"
+              min="10"
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
+              style={{ padding: "8px", marginRight: "10px" }}
+            />
             <button
               onClick={buyCoins}
-              disabled={isLoading}
+              disabled={loading}
               style={{
                 padding: "10px 20px",
-                backgroundColor: "#0088cc",
+                background: "#0088cc",
                 color: "white",
                 border: "none",
                 borderRadius: "5px",
-                cursor: "pointer",
-                fontSize: "16px",
-                marginTop: "10px",
               }}
             >
-              {isLoading ? "Processing..." : "Buy Coins"}
+              {loading ? "Отправка..." : "Купить"}
             </button>
+            <p>Стоимость: {(amount * 0.004).toFixed(3)} TON</p>
           </div>
 
-          {transactionStatus && (
+          {txStatus && (
             <p
-              style={{
-                color: transactionStatus.includes("Success") ? "green" : "red",
-              }}
+              style={{ color: txStatus.includes("Успешно") ? "green" : "red" }}
             >
-              {transactionStatus}
+              {txStatus}
             </p>
           )}
         </div>
       ) : (
         <button
-          onClick={connectWallet}
+          onClick={() => tonConnectUI.connectWallet()}
           style={{
             padding: "15px 30px",
-            backgroundColor: "#0088cc",
+            background: "#0088cc",
             color: "white",
             border: "none",
             borderRadius: "5px",
-            cursor: "pointer",
-            fontSize: "18px",
-            margin: "20px 0",
+            fontSize: "16px",
           }}
         >
-          Connect TON Wallet
+          Подключить TON кошелек
         </button>
       )}
     </div>

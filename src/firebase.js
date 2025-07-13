@@ -23,7 +23,7 @@ import { initializeApp } from "firebase/app";
 import { getDatabase, ref, set, get, onValue } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCH9CeUn88EELoBpGpdKITMYXKA8GAVa7U", // замени на свой
+  apiKey: "AIzaSyCH9CeUn88EELoBpGpdKITMYXKA8GAVa7U",
   authDomain: "tongarant.firebaseapp.com",
   databaseURL: "https://tongarant-default-rtdb.firebaseio.com",
   projectId: "tongarant",
@@ -31,13 +31,25 @@ const firebaseConfig = {
   messagingSenderId: "*******",
   appId: "1:*******:web:********",
 };
-// Добавьте это в конец файла firebase.js
-export const getUserData = async (userId) => {
-  const userRef = ref(database, `casinoord/${userId}`);
-  const snapshot = await get(userRef);
-  return snapshot.val();
-};
+
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 export { database, ref, set, get, onValue };
+// import { initializeApp } from "firebase/app";
+// import { getDatabase, ref, set, get, onValue } from "firebase/database";
+
+// const firebaseConfig = {
+//   apiKey: "AIzaSyCH9CeUn88EELoBpGpdKITMYXKA8GAVa7U", // замени на свой
+//   authDomain: "tongarant.firebaseapp.com",
+//   databaseURL: "https://tongarant-default-rtdb.firebaseio.com",
+//   projectId: "tongarant",
+//   storageBucket: "tongarant.appspot.com",
+//   messagingSenderId: "*******",
+//   appId: "1:*******:web:********",
+// };
+
+// const app = initializeApp(firebaseConfig);
+// const database = getDatabase(app);
+
+// export { database, ref, set, get, onValue };
