@@ -198,29 +198,64 @@
 // };
 
 // export default TonConnector;
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   useTonConnectUI,
   useTonAddress,
   useTonWallet,
 } from "@tonconnect/ui-react";
-import { database, ref, set, get } from "./firebase";
+import { database, ref, set, update, get } from "./firebase";
 
-const TonConnector = ({ userId }) => {
+const TonConnector = () => {
   const [tonConnectUI] = useTonConnectUI();
   const walletAddress = useTonAddress();
   const wallet = useTonWallet();
-  const [coins, setCoins] = useState(0); // Для хранения монет
-  const [amount, setAmount] = useState(10); // Сумма, которую пользователь хочет купить
+  const [coins, setCoins] = useState(0);
+  const [amount, setAmount] = useState(10);
   const [loading, setLoading] = useState(false);
   const [txStatus, setTxStatus] = useState("");
   const [connectionError, setConnectionError] = useState("");
+
+  // 🔥 Получаем Telegram ID
+  const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+  const userId = telegramUser?.id ? `telegram_${telegramUser.id}` : null;
 
   const RECIPIENT_ADDRESS = "UQDNqYE7mTZnTRKdyZuu5ITXVJEnPt4co-kSqBNZ_oHZn1Q7";
   const tonAmount = amount * 0.004;
   const nanoAmount = Math.floor(tonAmount * 1e9).toString();
 
-  // Функция покупки монет
+  // ⏬ Загружаем монеты из Firebase при старте
+  useEffect(() => {
+    if (!userId) return;
+    const userRef = ref(database, `users/${userId}`);
+    get(userRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        setCoins(data.coins || 0);
+      }
+    });
+  }, [userId]);
+
+  const handleConnectWallet = async () => {
+    try {
+      setConnectionError("");
+      await tonConnectUI.connectWallet();
+
+      if (!userId || !walletAddress) return;
+
+      // Сохраняем профиль в Firebase
+      const userRef = ref(database, `users/${userId}`);
+      await set(userRef, {
+        telegramId: telegramUser.id,
+        walletAddress,
+        coins: coins || 0,
+      });
+    } catch (error) {
+      console.error("Connect error:", error);
+      setConnectionError("Не удалось подключить кошелек TON");
+    }
+  };
+
   const buyCoins = async () => {
     if (!wallet) {
       setConnectionError("Кошелек не подключен");
@@ -241,34 +276,24 @@ const TonConnector = ({ userId }) => {
         ],
       };
 
-      console.log("Sending TX:", transaction);
-
       const result = await tonConnectUI.sendTransaction(transaction);
-
       if (!result?.boc) throw new Error("Не получен хеш транзакции");
 
       const newCoins = coins + amount;
       setCoins(newCoins);
       setTxStatus(`Успешно! ${amount} монет зачислено.`);
 
-      // Сохраняем успешную транзакцию в Firebase
-      const txRef = ref(database, `users/${userId}/transactions/${Date.now()}`);
-      await set(
-        txRef,
-        {
-          amount,
-          tonAmount,
-          status: "completed",
-          txHash: result.boc,
-          timestamp: Date.now(),
-        },
-        { merge: true }
-      );
-
-      // Обновляем количество монет в базе данных
-      const userRef = ref(database, `users/${userId}`);
-      await set(userRef, {
+      await update(ref(database, `users/${userId}`), {
         coins: newCoins,
+      });
+
+      const txRef = ref(database, `users/${userId}/transactions/${Date.now()}`);
+      await set(txRef, {
+        amount,
+        tonAmount,
+        status: "completed",
+        txHash: result.boc,
+        timestamp: Date.now(),
       });
     } catch (error) {
       console.error("TX error:", error);
@@ -282,76 +307,34 @@ const TonConnector = ({ userId }) => {
         errorMessage = "Вы отменили транзакцию";
       else if (msg.includes("insufficient"))
         errorMessage = "Недостаточно средств";
-      else if (msg.includes("Request to the wallet contains errors")) {
+      else if (msg.includes("Request to the wallet contains errors"))
         errorMessage = "Ошибка в реквизитах транзакции";
-      }
 
       setTxStatus(errorMessage);
       setConnectionError(errorMessage);
 
       const txRef = ref(database, `users/${userId}/transactions/${Date.now()}`);
-      await set(
-        txRef,
-        {
-          amount,
-          tonAmount,
-          status: "failed",
-          error: errorMessage,
-          errorDetails: msg,
-          timestamp: Date.now(),
-        },
-        { merge: true }
-      );
+      await set(txRef, {
+        amount,
+        tonAmount,
+        status: "failed",
+        error: errorMessage,
+        errorDetails: msg,
+        timestamp: Date.now(),
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Получаем количество монет пользователя при монтировании компонента
-  useEffect(() => {
-    const getCoins = async () => {
-      const userRef = ref(database, `users/${userId}`);
-      const snapshot = await get(userRef);
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        setCoins(data.coins || 0); // Если монеты есть, обновляем состояние
-      }
-    };
+  const spendOneCoin = async () => {
+    if (coins <= 0) return alert("Недостаточно монет");
 
-    getCoins();
-  }, [userId]);
-
-  // Функция для траты монет
-  const spendCoin = async () => {
-    if (coins > 0) {
-      const newCoins = coins - 1;
-      setCoins(newCoins);
-
-      // Обновляем количество монет в базе данных Firebase
-      const userRef = ref(database, `users/${userId}`);
-      await set(userRef, {
-        coins: newCoins,
-      });
-    } else {
-      alert("Недостаточно монет для траты!");
-    }
-  };
-
-  const handleConnectWallet = async () => {
-    try {
-      setConnectionError("");
-      await tonConnectUI.connectWallet();
-
-      // Сохранение Telegram ID в Firebase
-      const telegramId = "TELEGRAM_USER_ID"; // Получите это значение из вашего бота или процесса авторизации
-      await set(ref(database, `users/${userId}`), {
-        telegramId: telegramId,
-        coins: 0, // Изначально у пользователя 0 монет
-      });
-    } catch (error) {
-      console.error("Connect error:", error);
-      setConnectionError("Не удалось подключить кошелек TON");
-    }
+    const newCoins = coins - 1;
+    await update(ref(database, `users/${userId}`), {
+      coins: newCoins,
+    });
+    setCoins(newCoins);
   };
 
   return (
@@ -374,6 +357,8 @@ const TonConnector = ({ userId }) => {
         <>
           <h2>TON Казино</h2>
           <p>
+            Telegram ID: {telegramUser?.id}
+            <br />
             Кошелек: {walletAddress?.slice(0, 6)}…{walletAddress?.slice(-4)}
           </p>
           <p>Монеты: {coins}</p>
@@ -403,13 +388,13 @@ const TonConnector = ({ userId }) => {
             {loading ? "Обработка..." : "Купить"}
           </button>
 
-          <h3>Потратить монету</h3>
           <button
-            onClick={spendCoin}
+            onClick={spendOneCoin}
             style={{
-              padding: 12,
+              padding: 10,
+              marginTop: 10,
               width: "100%",
-              background: "#1976d2",
+              background: "#ff9800",
               color: "white",
               border: "none",
               borderRadius: 8,
