@@ -10,125 +10,89 @@
 // };
 
 // export default Contact;
-import React, { useState, useEffect } from "react";
-import { database, ref, set, get, onValue } from "./firebase-config";
+import React, { useEffect, useState } from "react";
+// Импорты должны идти на уровень выше (../)
+import { database, ref, set, get } from "../firebase";
+import TonConnector from "../TonConnector";
 
-const WalletIntegration = () => {
-  const [userBalance, setUserBalance] = useState(0);
-  const [stars, setStars] = useState(0);
+const Contact = () => {
   const [userId, setUserId] = useState(null);
-  const [paymentUrl, setPaymentUrl] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // Инициализация Telegram WebApp
   useEffect(() => {
-    if (window.Telegram && window.Telegram.WebApp) {
-      const tg = window.Telegram.WebApp;
-      tg.expand();
-      setUserId(tg.initDataUnsafe.user?.id.toString());
+    const initializeUser = async () => {
+      // Проверяем/создаем ID пользователя
+      let id = localStorage.getItem("casinoUserId");
 
-      // Загружаем данные пользователя из Firebase
-      if (tg.initDataUnsafe.user?.id) {
-        const userRef = ref(database, "users/" + tg.initDataUnsafe.user.id);
-        onValue(userRef, (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
-            setUserBalance(data.balance || 0);
-            setStars(data.stars || 0);
-          }
-        });
+      if (!id) {
+        id = "user_" + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem("casinoUserId", id);
       }
-    }
+
+      setUserId(id);
+
+      // Инициализируем данные пользователя в Firebase
+      const userRef = ref(database, `casinoord/${id}`);
+      const snapshot = await get(userRef);
+
+      if (!snapshot.exists()) {
+        await set(userRef, {
+          createdAt: Date.now(),
+          visits: 1,
+          coins: 0,
+          lastVisit: Date.now(),
+        });
+      } else {
+        await set(
+          userRef,
+          {
+            visits: (snapshot.val().visits || 0) + 1,
+            lastVisit: Date.now(),
+          },
+          { merge: true }
+        );
+      }
+
+      setLoading(false);
+    };
+
+    initializeUser();
   }, []);
 
-  // Функция для создания платежа
-  const createPayment = (amount) => {
-    const tg = window.Telegram.WebApp;
-    const userId = tg.initDataUnsafe.user?.id;
-
-    if (!userId) return;
-
-    // Генерируем уникальный ID для платежа
-    const paymentId = Date.now().toString();
-
-    // Сохраняем информацию о платеже в Firebase
-    const paymentRef = ref(database, `payments/${paymentId}`);
-    set(paymentRef, {
-      userId: userId,
-      amount: amount,
-      status: "pending",
-      timestamp: Date.now(),
-    });
-
-    // Создаем URL для оплаты через Telegram Wallet
-    const walletUrl = `https://t.me/wallet?startattach=UQDNqYE7mTZnTRKdyZuu5ITXVJEnPt4co-kSqBNZ_oHZn1Q7&amount=${
-      amount * 1000000
-    }&currency=TON&start_param=${paymentId}`;
-    setPaymentUrl(walletUrl);
-
-    // Открываем платежное окно
-    tg.openInvoice(walletUrl, (status) => {
-      if (status === "paid") {
-        // Платеж успешен
-        const starsToAdd = amount * 10; // 10 звездочек за 10 центов
-        updateUserBalance(userId, starsToAdd);
-
-        // Обновляем статус платежа
-        set(paymentRef, {
-          status: "completed",
-          starsAdded: starsToAdd,
-        });
-      }
-    });
-  };
-
-  // Обновление баланса пользователя
-  const updateUserBalance = (userId, starsToAdd) => {
-    const userRef = ref(database, "users/" + userId);
-    get(userRef).then((snapshot) => {
-      const currentData = snapshot.val() || { stars: 0 };
-      const newStars = (currentData.stars || 0) + starsToAdd;
-
-      set(userRef, {
-        ...currentData,
-        stars: newStars,
-        lastUpdate: Date.now(),
-      });
-
-      setStars(newStars);
-    });
-  };
+  if (loading) {
+    return (
+      <div style={{ padding: "50px", textAlign: "center" }}>Loading...</div>
+    );
+  }
 
   return (
     <div style={{ padding: "20px", textAlign: "center" }}>
-      <h2>Ваш кошелек</h2>
-      <p>Ваш ID: {userId || "не определен"}</p>
-      <p>Звездочек: {stars}</p>
+      <h1 style={{ color: "#0088cc", marginBottom: "30px" }}>TON Casino</h1>
 
-      <div style={{ margin: "20px 0" }}>
-        <button
-          onClick={() => createPayment(10)}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: "#0088cc",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
-          Купить 10 звездочек за 10 центов
-        </button>
+      <div
+        style={{
+          backgroundColor: "#f5f5f5",
+          borderRadius: "10px",
+          padding: "20px",
+          maxWidth: "600px",
+          margin: "0 auto",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+        }}
+      >
+        <h2 style={{ marginBottom: "20px" }}>Your Account</h2>
+        {userId && <TonConnector userId={userId} />}
       </div>
 
-      {paymentUrl && (
-        <p style={{ marginTop: "20px" }}>
-          <a href={paymentUrl} target="_blank" rel="noopener noreferrer">
-            Открыть платеж в Telegram
-          </a>
-        </p>
-      )}
+      <div style={{ marginTop: "30px" }}>
+        <h3>How it works:</h3>
+        <ol style={{ textAlign: "left", maxWidth: "500px", margin: "0 auto" }}>
+          <li>Connect your TON wallet</li>
+          <li>Buy coins (minimum 10 coins for 0.04 TON)</li>
+          <li>Use coins to play games (coming soon)</li>
+        </ol>
+      </div>
     </div>
   );
 };
 
-export default WalletIntegration;
+export default Contact;

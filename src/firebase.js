@@ -31,7 +31,12 @@ const firebaseConfig = {
   messagingSenderId: "*******",
   appId: "1:*******:web:********",
 };
-
+// Добавьте это в конец файла firebase.js
+export const getUserData = async (userId) => {
+  const userRef = ref(database, `casinoord/${userId}`);
+  const snapshot = await get(userRef);
+  return snapshot.val();
+};
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
