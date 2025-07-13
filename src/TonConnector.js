@@ -218,7 +218,7 @@ const TonConnector = ({ userId }) => {
 
   //   const RECIPIENT_ADDRESS = "UQDNqYE7mTZnTRKdyZuu5ITXVJEnPt4co-kSqBNZ_oHZn1Q7";
   const RECIPIENT_ADDRESS = "UQAEbqdLmHY-gxbUG9eqeldLX8yQDjUDOo1R5NHYjlpIlGet";
-  const tonAmount = amount * 0.004;
+  const tonAmount = amount * 0.002;
   const nanoAmount = Math.floor(tonAmount * 1e9).toString();
 
   // ✅ Загружаем количество монет при старте
