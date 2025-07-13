@@ -224,7 +224,7 @@ const TonConnector = ({ telegramUserId }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userRef = ref(database, `users/${telegramUserId}`); // Используем telegramUserId
+        const userRef = ref(database, `users/${telegramUserId}`);
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
           const userData = snapshot.val();
@@ -232,8 +232,9 @@ const TonConnector = ({ telegramUserId }) => {
             setCoins(userData.coins);
           }
         } else {
-          // Если данных нет, создаем нового пользователя
+          // Если данных нет, создаем нового пользователя с сохранением ID Telegram
           await set(userRef, {
+            telegramUserId, // Сохраняем ID пользователя Telegram
             coins: 0,
             lastPurchase: Date.now(),
           });
@@ -331,6 +332,34 @@ const TonConnector = ({ telegramUserId }) => {
     }
   };
 
+  const handleSpendCoin = async () => {
+    if (coins <= 0) {
+      setTxStatus("Недостаточно монет для траты.");
+      return;
+    }
+
+    const newCoins = coins - 1;
+    setCoins(newCoins);
+    setTxStatus(`1 монета потрачена. Баланс: ${newCoins} монет.`);
+
+    const userRef = ref(database, `users/${telegramUserId}`);
+    await set(userRef, {
+      coins: newCoins,
+      lastPurchase: Date.now(),
+    });
+
+    const txRef = ref(
+      database,
+      `users/${telegramUserId}/transactions/${Date.now()}`
+    );
+    await set(txRef, {
+      amount: -1,
+      tonAmount: 0,
+      status: "spent",
+      timestamp: Date.now(),
+    });
+  };
+
   const handleConnectWallet = async () => {
     try {
       setConnectionError("");
@@ -388,6 +417,23 @@ const TonConnector = ({ telegramUserId }) => {
             }}
           >
             {loading ? "Обработка..." : "Купить"}
+          </button>
+
+          <h3>Потратить 1 монету</h3>
+          <button
+            onClick={handleSpendCoin}
+            disabled={coins <= 0}
+            style={{
+              padding: 12,
+              width: "100%",
+              background: "#f44336",
+              color: "white",
+              border: "none",
+              borderRadius: 8,
+              cursor: "pointer",
+            }}
+          >
+            Потратить 1 монету
           </button>
 
           {txStatus && (
