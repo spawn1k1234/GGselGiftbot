@@ -19,8 +19,32 @@
 // // Экспортируем db, doc и getDoc для использования в других файлах
 // export { db, doc, getDoc };
 // src/firebase.js
+// import { initializeApp } from "firebase/app";
+// import { getDatabase, ref, set, get, onValue } from "firebase/database";
+
+// const firebaseConfig = {
+//   apiKey: "AIzaSyCH9CeUn88EELoBpGpdKITMYXKA8GAVa7U",
+//   authDomain: "tongarant.firebaseapp.com",
+//   databaseURL: "https://tongarant-default-rtdb.firebaseio.com",
+//   projectId: "tongarant",
+//   storageBucket: "tongarant.appspot.com",
+//   messagingSenderId: "*******",
+//   appId: "1:*******:web:********",
+// };
+
+// const app = initializeApp(firebaseConfig);
+// const database = getDatabase(app);
+
+// export { database, ref, set, get, onValue };
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set, get, onValue } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  set,
+  get,
+  onValue,
+  update, // 🟢 добавлено здесь
+} from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCH9CeUn88EELoBpGpdKITMYXKA8GAVa7U",
@@ -35,21 +59,4 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-export { database, ref, set, get, onValue };
-// import { initializeApp } from "firebase/app";
-// import { getDatabase, ref, set, get, onValue } from "firebase/database";
-
-// const firebaseConfig = {
-//   apiKey: "AIzaSyCH9CeUn88EELoBpGpdKITMYXKA8GAVa7U", // замени на свой
-//   authDomain: "tongarant.firebaseapp.com",
-//   databaseURL: "https://tongarant-default-rtdb.firebaseio.com",
-//   projectId: "tongarant",
-//   storageBucket: "tongarant.appspot.com",
-//   messagingSenderId: "*******",
-//   appId: "1:*******:web:********",
-// };
-
-// const app = initializeApp(firebaseConfig);
-// const database = getDatabase(app);
-
-// export { database, ref, set, get, onValue };
+export { database, ref, set, get, onValue, update }; // 🟢 добавлено update
