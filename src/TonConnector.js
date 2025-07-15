@@ -221,7 +221,7 @@ const TonConnector = () => {
   const userId = telegramUser?.id ? `telegram_${telegramUser.id}` : null;
 
   // 💵 10 монет = 5 центов ≈ 0.04 TON
-  const tonAmount = 0.04;
+  const tonAmount = 0.01;
   const nanoAmount = Math.floor(tonAmount * 1e9).toString();
   const RECIPIENT_ADDRESS = "UQDNqYE7mTZnTRKdyZuu5ITXVJEnPt4co-kSqBNZ_oHZn1Q7";
 
