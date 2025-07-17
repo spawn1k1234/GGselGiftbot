@@ -1,106 +1,101 @@
 import React, { useState, useEffect } from "react";
-import { database, ref, get, update, set, onValue } from "../firebase"; // Добавили onValue
+import { database, ref, get, update, set } from "./firebase";
 
-const rewards = [0, 2, 5, 10, 20, 25];
+const Roulette = ({ userId, coins, setCoins }) => {
+  const [betAmount, setBetAmount] = useState(0);
+  const [gameResult, setGameResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [txStatus, setTxStatus] = useState("");
 
-const Roulette = ({ userId }) => {
-  const [spinning, setSpinning] = useState(false);
-  const [result, setResult] = useState(null);
-  const [coins, setCoins] = useState(0);
-
-  // Получаем данные о монетах пользователя
-  useEffect(() => {
-    if (!userId) return;
-
-    const userRef = ref(database, `users/${userId}`);
-
-    // Получаем данные пользователя из Firebase
-    get(userRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        setCoins(data.coins || 0);
-      } else {
-        console.log("Пользователь не найден в базе данных.");
-      }
-    });
-
-    // Слушаем изменения монет
-    const coinsRef = ref(database, `users/${userId}/coins`);
-    const unsubscribe = onValue(coinsRef, (snapshot) => {
-      const coinsData = snapshot.val();
-      if (coinsData !== null) {
-        setCoins(coinsData);
-      }
-    });
-
-    return () => unsubscribe();
-  }, [userId]);
-
-  // Функция для кручения рулетки
   const spinRoulette = async () => {
-    if (spinning || coins < 2) {
-      alert("Недостаточно монет или рулетка уже крутится");
+    if (betAmount <= 0 || betAmount > coins) {
+      setTxStatus("Некорректная сумма ставки.");
       return;
     }
 
-    setSpinning(true);
-    setResult(null);
+    setLoading(true);
+    setTxStatus("Игровая сессия началась...");
 
-    const prize = rewards[Math.floor(Math.random() * rewards.length)];
+    // Имитируем процесс игры
+    const randomResult = Math.random() < 0.5 ? "win" : "lose"; // 50% вероятность выигрыша
 
-    setTimeout(async () => {
-      const newCoins = coins - 2 + prize;
-      const timestamp = Date.now();
+    const newCoins =
+      randomResult === "win" ? coins + betAmount : coins - betAmount;
+    const timestamp = Date.now();
 
-      // Обновляем монеты пользователя в Firebase
-      await update(ref(database, `users/${userId}`), {
-        coins: newCoins,
-      });
+    try {
+      // Обновляем количество монет
+      await update(ref(database, `users/${userId}`), { coins: newCoins });
+      setCoins(newCoins);
 
       // Записываем транзакцию
       await set(ref(database, `users/${userId}/transactions/${timestamp}`), {
-        amount: prize - 2,
-        type: "roulette",
-        result: prize,
-        cost: 2,
+        amount: randomResult === "win" ? betAmount : -betAmount,
+        status: randomResult === "win" ? "won" : "lost",
         timestamp,
       });
 
-      setCoins(newCoins);
-      setResult(prize);
-      setSpinning(false);
-    }, 2500);
+      setGameResult(randomResult);
+      setTxStatus(
+        `Вы ${
+          randomResult === "win" ? "выиграли" : "проиграли"
+        } ${betAmount} монет!`
+      );
+    } catch (error) {
+      console.error("Ошибка игры:", error);
+      setTxStatus("Произошла ошибка, попробуйте позже.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div style={{ textAlign: "center", padding: 20 }}>
-      <h2>🎰 Рулетка</h2>
-      <p>Монеты: {coins}</p>
+    <div style={{ maxWidth: 500, margin: "0 auto", padding: 20 }}>
+      <h2>Игра в Рулетку</h2>
+      <p>Ваши монеты: {coins}</p>
+
+      <input
+        type="number"
+        value={betAmount}
+        onChange={(e) => setBetAmount(Math.max(0, parseInt(e.target.value)))}
+        style={{ padding: 8, marginBottom: 20, width: "100%" }}
+        placeholder="Введите ставку"
+      />
 
       <button
         onClick={spinRoulette}
-        disabled={spinning || coins < 2}
+        disabled={loading || betAmount <= 0 || betAmount > coins}
         style={{
-          padding: 15,
-          background: "#4caf50",
+          padding: 12,
+          width: "100%",
+          background: loading ? "#ccc" : "#1976d2",
           color: "white",
           border: "none",
-          borderRadius: 10,
-          fontSize: 18,
-          cursor: spinning ? "not-allowed" : "pointer",
+          borderRadius: 8,
+          cursor: "pointer",
         }}
       >
-        {spinning ? "Крутится..." : "Крутить за 2 монеты"}
+        {loading ? "Игра идет..." : "Крутить рулетку"}
       </button>
 
-      {result !== null && (
+      {txStatus && (
+        <div
+          style={{
+            marginTop: 20,
+            padding: 10,
+            background: txStatus.includes("выиграли") ? "#e8f5e9" : "#ffebee",
+            color: txStatus.includes("выиграли") ? "#2e7d32" : "#c62828",
+            borderRadius: 8,
+          }}
+        >
+          {txStatus}
+        </div>
+      )}
+
+      {gameResult && (
         <div style={{ marginTop: 20 }}>
-          <h3>Результат: {result} монет</h3>
-          {result === 0 ? (
-            <p style={{ color: "#c62828" }}>Увы, ничего не выиграли 😞</p>
-          ) : (
-            <p style={{ color: "#2e7d32" }}>Поздравляем! 🎉</p>
-          )}
+          <h3>Результат игры:</h3>
+          <p>{gameResult === "win" ? "Вы выиграли!" : "Вы проиграли."}</p>
         </div>
       )}
     </div>
