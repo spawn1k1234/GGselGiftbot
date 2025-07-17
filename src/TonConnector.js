@@ -288,6 +288,7 @@ import {
   useTonWallet,
 } from "@tonconnect/ui-react";
 import { database, ref, set, update, get, onValue } from "./firebase";
+import "./components/Contact.css";
 
 const TonConnector = ({ userId, setCoins, coins }) => {
   const [tonConnectUI] = useTonConnectUI();
@@ -451,16 +452,16 @@ const TonConnector = ({ userId, setCoins, coins }) => {
 
       {wallet ? (
         <>
-          <h2>TON Казино</h2>
-          <p>
-            Telegram ID: {telegramUser?.id}
+          <h2 className="h2tit">TON</h2>
+          <p className="titpod">
+            Tg ID: {telegramUser?.id}
             <br />
             Кошелек: {walletAddress?.slice(0, 6)}…{walletAddress?.slice(-4)}
           </p>
-          <p>Монеты: {coins}</p>
+          <p className="titpod">Монеты: {coins}</p>
 
-          <h3>Купить 10 монет</h3>
-          <p>Стоимость: {tonAmount.toFixed(3)} TON (~5¢)</p>
+          <h3 className="titpod">Купить 10 монет</h3>
+          <p className="titpod">Стоимость: {tonAmount.toFixed(3)} TON (~5¢)</p>
           <button
             onClick={buyCoins}
             disabled={loading}

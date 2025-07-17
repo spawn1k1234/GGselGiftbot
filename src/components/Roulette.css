@@ -1,0 +1,116 @@
+.roulette-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: "Arial", sans-serif;
+}
+
+.roulette-canvas {
+  width: 100%;
+  height: 400px;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.roulette-controls {
+  background-color: #2a2a2a;
+  padding: 20px;
+  border-radius: 8px;
+  color: white;
+}
+
+.titrul {
+  color: #4caf50;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.cointsyou {
+  font-size: 18px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.bet-input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 4px;
+  background-color: #333;
+  color: white;
+  font-size: 16px;
+}
+
+.spin-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.spin-button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.spin-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.spin-button.loading {
+  background-color: #ff9800;
+}
+
+.status-message {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.status-message.win {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-message.lose {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.result-container {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #333;
+  border-radius: 4px;
+}
+
+.resulth1 {
+  color: #4caf50;
+  margin-bottom: 10px;
+}
+
+.pclass_nam {
+  font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .roulette-container {
+    flex-direction: column;
+  }
+
+  .roulette-canvas {
+    height: 300px;
+  }
+}

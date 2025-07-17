@@ -40,6 +40,7 @@ import React, { useState, useEffect } from "react";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import TonConnector from "../TonConnector";
 import Roulette from "../components/Roulette";
+import "./Contact.css";
 
 const Contact = () => {
   const [userId, setUserId] = useState(null);
@@ -56,8 +57,8 @@ const Contact = () => {
 
   return (
     <TonConnectUIProvider manifestUrl="https://g-gsel-giftbot.vercel.app/tonconnect-manifest.json">
-      <div style={{ padding: "20px", maxWidth: 600, margin: "0 auto" }}>
-        <h1>🎲 TON Казино</h1>
+      <div className="contvloks">
+        <h1 className="titcas">GGsel TON Casino GIFT</h1>
         {userId && (
           <>
             <TonConnector userId={userId} setCoins={setCoins} coins={coins} />

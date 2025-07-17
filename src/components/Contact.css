@@ -1,0 +1,30 @@
+.titcas {
+  font-size: 30px;
+  color: white;
+  font-family: "Montserrat", sans-serif;
+}
+.titpod {
+  color: white;
+}
+.contvloks {
+  width: 95%;
+  margin: 0 auto;
+  margin-top: 10px;
+  background-color: rgba(150, 150, 150, 0.05);
+  backdrop-filter: blur(20px);
+}
+.h2tit {
+  color: aliceblue;
+}
+.titrul {
+  color: white;
+}
+.cointsyou {
+  color: white;
+}
+.resulth1 {
+  color: white;
+}
+.pclass_nam {
+  color: white;
+}
