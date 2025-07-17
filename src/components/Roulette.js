@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { database, ref, get, update, set } from "./firebase";
+import { database, ref, get, update, set } from "../firebase";
 
 const Roulette = ({ userId, coins, setCoins }) => {
   const [betAmount, setBetAmount] = useState(0);
