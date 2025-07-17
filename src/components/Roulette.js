@@ -8,38 +8,46 @@ const Roulette = ({ userId }) => {
   const [result, setResult] = useState(null);
   const [coins, setCoins] = useState(0);
 
+  // Функция для получения монет из базы данных
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) return; // Если нет userId, ничего не делать
     const fetchCoins = async () => {
-      const userRef = ref(database, `users/${userId}`);
-      const snapshot = await get(userRef);
+      const userRef = ref(database, `users/${userId}`); // Получаем ссылку на пользователя
+      const snapshot = await get(userRef); // Получаем данные пользователя из базы данных
+
+      // Проверяем, существуют ли данные
       if (snapshot.exists()) {
-        const data = snapshot.val();
-        setCoins(data.coins || 0);
+        const data = snapshot.val(); // Если существуют, получаем их
+        setCoins(data.coins || 0); // Устанавливаем монеты
+      } else {
+        console.error("Пользователь не найден в базе данных.");
       }
     };
-    fetchCoins();
-  }, [userId]);
+    fetchCoins(); // Запускаем функцию
+  }, [userId]); // Слушаем изменение userId
 
+  // Функция для кручения рулетки
   const spinRoulette = async () => {
     if (spinning || coins < 2) {
       alert("Недостаточно монет или рулетка уже крутится");
       return;
     }
 
-    setSpinning(true);
-    setResult(null);
+    setSpinning(true); // Устанавливаем статус крутящегося
+    setResult(null); // Сбрасываем результат
 
-    const prize = rewards[Math.floor(Math.random() * rewards.length)];
+    const prize = rewards[Math.floor(Math.random() * rewards.length)]; // Случайный приз
 
     setTimeout(async () => {
-      const newCoins = coins - 2 + prize;
-      const timestamp = Date.now();
+      const newCoins = coins - 2 + prize; // Обновляем количество монет
+      const timestamp = Date.now(); // Берем текущий timestamp
 
+      // Обновляем количество монет в базе данных
       await update(ref(database, `users/${userId}`), {
         coins: newCoins,
       });
 
+      // Записываем транзакцию
       await set(ref(database, `users/${userId}/transactions/${timestamp}`), {
         amount: prize - 2,
         type: "roulette",
@@ -48,10 +56,10 @@ const Roulette = ({ userId }) => {
         timestamp,
       });
 
-      setCoins(newCoins);
-      setResult(prize);
-      setSpinning(false);
-    }, 2500);
+      setCoins(newCoins); // Обновляем состояние монет
+      setResult(prize); // Обновляем результат
+      setSpinning(false); // Устанавливаем статус "не крутится"
+    }, 2500); // Задержка для эффекта кручения
   };
 
   return (
@@ -60,8 +68,8 @@ const Roulette = ({ userId }) => {
       <p>Монеты: {coins}</p>
 
       <button
-        onClick={spinRoulette}
-        disabled={spinning || coins < 2}
+        onClick={spinRoulette} // При клике запускается рулетка
+        disabled={spinning || coins < 2} // Если крутится или монет меньше 2 - кнопка не активна
         style={{
           padding: 15,
           background: "#4caf50",
