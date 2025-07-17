@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { database, ref, get, update, set } from "../firebase"; // Убедись, что путь правильный!
+import { database, ref, get, update, set, onValue } from "../firebase"; // Добавили onValue
 
 const rewards = [0, 2, 5, 10, 20, 25];
 
