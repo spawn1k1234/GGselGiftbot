@@ -289,11 +289,10 @@ import {
 } from "@tonconnect/ui-react";
 import { database, ref, set, update, get, onValue } from "./firebase";
 
-const TonConnector = () => {
+const TonConnector = ({ userId, setCoins, coins }) => {
   const [tonConnectUI] = useTonConnectUI();
   const walletAddress = useTonAddress();
   const wallet = useTonWallet();
-  const [coins, setCoins] = useState(0);
   const [amount] = useState(10); // фиксируем покупку 10 монет
   const [loading, setLoading] = useState(false);
   const [txStatus, setTxStatus] = useState("");
@@ -301,14 +300,14 @@ const TonConnector = () => {
   const [transactions, setTransactions] = useState([]);
 
   const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-  const userId = telegramUser?.id ? `telegram_${telegramUser.id}` : null;
+  const userIdFromTelegram = telegramUser?.id
+    ? `telegram_${telegramUser.id}`
+    : null;
 
-  // 💵 10 монет = 5 центов ≈ 0.04 TON
   const tonAmount = 0.01;
   const nanoAmount = Math.floor(tonAmount * 1e9).toString();
   const RECIPIENT_ADDRESS = "UQDNqYE7mTZnTRKdyZuu5ITXVJEnPt4co-kSqBNZ_oHZn1Q7";
 
-  // 🔄 Инициализация пользователя и загрузка данных
   useEffect(() => {
     if (!userId) return;
 
@@ -325,7 +324,7 @@ const TonConnector = () => {
         console.log("Пользователь не найден. Создан новый с 0 монет.");
       } else {
         const data = snapshot.val();
-        console.log("Данные пользователя:", data); // Логируем данные пользователя
+        console.log("Данные пользователя:", data);
         setCoins(data.coins || 0);
       }
     });
@@ -343,14 +342,7 @@ const TonConnector = () => {
     });
 
     return () => unsubscribe();
-  }, [userId]);
-
-  // 🔁 Обновляем walletAddress
-  useEffect(() => {
-    if (!userId || !walletAddress) return;
-    const userRef = ref(database, `users/${userId}`);
-    update(userRef, { walletAddress });
-  }, [walletAddress]);
+  }, [userId, setCoins]);
 
   const handleConnectWallet = async () => {
     try {
@@ -380,15 +372,13 @@ const TonConnector = () => {
       const result = await tonConnectUI.sendTransaction(transaction);
       if (!result?.boc) throw new Error("Не получен хеш транзакции");
 
-      const newCoins = coins + amount; // увеличиваем количество монет
+      const newCoins = coins + amount;
       const timestamp = Date.now();
 
-      // Обновляем количество монет в Firebase
       await update(ref(database, `users/${userId}`), { coins: newCoins });
-      setCoins(newCoins); // Обновляем состояние монет в приложении
+      setCoins(newCoins);
       setTxStatus(`Успешно! ${amount} монет зачислено.`);
 
-      // Записываем транзакцию в Firebase
       await set(ref(database, `users/${userId}/transactions/${timestamp}`), {
         amount,
         tonAmount,
@@ -398,7 +388,6 @@ const TonConnector = () => {
       });
     } catch (error) {
       console.error("TX error:", error);
-
       const msg = error.message || "";
       let errorMessage = "Ошибка транзакции";
 
@@ -436,10 +425,9 @@ const TonConnector = () => {
     await update(ref(database, `users/${userId}`), { coins: newCoins });
     setCoins(newCoins);
 
-    // Записываем транзакцию в историю
     await set(ref(database, `users/${userId}/transactions/${timestamp}`), {
       amount: -1,
-      tonAmount: -0.004, // Стоимость одной монеты
+      tonAmount: -0.004,
       status: "spent",
       timestamp,
     });
@@ -518,30 +506,6 @@ const TonConnector = () => {
               }}
             >
               {txStatus}
-            </div>
-          )}
-
-          {transactions.length > 0 && (
-            <div style={{ marginTop: 30 }}>
-              <h3>История покупок</h3>
-              <ul style={{ padding: 0, listStyle: "none" }}>
-                {transactions.map((tx) => (
-                  <li
-                    key={tx.id}
-                    style={{
-                      borderBottom: "1px solid #ccc",
-                      padding: "10px 0",
-                    }}
-                  >
-                    <strong>{tx.amount} монет</strong> за{" "}
-                    {tx.tonAmount.toFixed(3)} TON
-                    <br />
-                    <small>
-                      {new Date(tx.timestamp).toLocaleString("ru-RU")}
-                    </small>
-                  </li>
-                ))}
-              </ul>
             </div>
           )}
         </>

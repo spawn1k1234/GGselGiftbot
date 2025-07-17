@@ -60,7 +60,7 @@ const Contact = () => {
         <h1>🎲 TON Казино</h1>
         {userId && (
           <>
-            <TonConnector userId={userId} setCoins={setCoins} />
+            <TonConnector userId={userId} setCoins={setCoins} coins={coins} />
             <Roulette userId={userId} coins={coins} setCoins={setCoins} />
           </>
         )}
@@ -70,3 +70,38 @@ const Contact = () => {
 };
 
 export default Contact;
+
+// import React, { useState, useEffect } from "react";
+// import { TonConnectUIProvider } from "@tonconnect/ui-react";
+// import TonConnector from "../TonConnector";
+
+// import Roulette from "../components/Roulette";
+
+// const Contact = () => {
+//   const [userId, setUserId] = useState(null);
+
+//   useEffect(() => {
+//     let id = localStorage.getItem("casinoUserId");
+//     if (!id) {
+//       id = "user_" + Math.random().toString(36).substr(2, 9);
+//       localStorage.setItem("casinoUserId", id);
+//     }
+//     setUserId(id);
+//   }, []);
+
+//   return (
+//     <TonConnectUIProvider manifestUrl="https://g-gsel-giftbot.vercel.app/tonconnect-manifest.json">
+//       <div style={{ padding: "20px", maxWidth: 600, margin: "0 auto" }}>
+//         <h1>🎲 TON Казино</h1>
+//         {userId && (
+//           <>
+//             <TonConnector userId={userId} />
+//             <Roulette userId={userId} />
+//           </>
+//         )}
+//       </div>
+//     </TonConnectUIProvider>
+//   );
+// };
+
+// export default Contact;
