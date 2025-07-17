@@ -8,23 +8,33 @@ const Roulette = ({ userId }) => {
   const [result, setResult] = useState(null);
   const [coins, setCoins] = useState(0);
 
-  // Функция для получения монет из базы данных
+  // Получаем данные о монетах пользователя
   useEffect(() => {
-    if (!userId) return; // Если нет userId, ничего не делать
-    const fetchCoins = async () => {
-      const userRef = ref(database, `users/${userId}`); // Получаем ссылку на пользователя
-      const snapshot = await get(userRef); // Получаем данные пользователя из базы данных
+    if (!userId) return;
 
-      // Проверяем, существуют ли данные
+    const userRef = ref(database, `users/${userId}`);
+
+    // Получаем данные пользователя из Firebase
+    get(userRef).then((snapshot) => {
       if (snapshot.exists()) {
-        const data = snapshot.val(); // Если существуют, получаем их
-        setCoins(data.coins || 0); // Устанавливаем монеты
+        const data = snapshot.val();
+        setCoins(data.coins || 0);
       } else {
-        console.error("Пользователь не найден в базе данных.");
+        console.log("Пользователь не найден в базе данных.");
       }
-    };
-    fetchCoins(); // Запускаем функцию
-  }, [userId]); // Слушаем изменение userId
+    });
+
+    // Слушаем изменения монет
+    const coinsRef = ref(database, `users/${userId}/coins`);
+    const unsubscribe = onValue(coinsRef, (snapshot) => {
+      const coinsData = snapshot.val();
+      if (coinsData !== null) {
+        setCoins(coinsData);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [userId]);
 
   // Функция для кручения рулетки
   const spinRoulette = async () => {
@@ -33,16 +43,16 @@ const Roulette = ({ userId }) => {
       return;
     }
 
-    setSpinning(true); // Устанавливаем статус крутящегося
-    setResult(null); // Сбрасываем результат
+    setSpinning(true);
+    setResult(null);
 
-    const prize = rewards[Math.floor(Math.random() * rewards.length)]; // Случайный приз
+    const prize = rewards[Math.floor(Math.random() * rewards.length)];
 
     setTimeout(async () => {
-      const newCoins = coins - 2 + prize; // Обновляем количество монет
-      const timestamp = Date.now(); // Берем текущий timestamp
+      const newCoins = coins - 2 + prize;
+      const timestamp = Date.now();
 
-      // Обновляем количество монет в базе данных
+      // Обновляем монеты пользователя в Firebase
       await update(ref(database, `users/${userId}`), {
         coins: newCoins,
       });
@@ -56,10 +66,10 @@ const Roulette = ({ userId }) => {
         timestamp,
       });
 
-      setCoins(newCoins); // Обновляем состояние монет
-      setResult(prize); // Обновляем результат
-      setSpinning(false); // Устанавливаем статус "не крутится"
-    }, 2500); // Задержка для эффекта кручения
+      setCoins(newCoins);
+      setResult(prize);
+      setSpinning(false);
+    }, 2500);
   };
 
   return (
@@ -68,8 +78,8 @@ const Roulette = ({ userId }) => {
       <p>Монеты: {coins}</p>
 
       <button
-        onClick={spinRoulette} // При клике запускается рулетка
-        disabled={spinning || coins < 2} // Если крутится или монет меньше 2 - кнопка не активна
+        onClick={spinRoulette}
+        disabled={spinning || coins < 2}
         style={{
           padding: 15,
           background: "#4caf50",
