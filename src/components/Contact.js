@@ -35,15 +35,15 @@
 //     </TonConnectUIProvider>
 //   );
 // };
-// export default Contact;
+// // export default Contact;
 import React, { useState, useEffect } from "react";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import TonConnector from "../TonConnector";
-
 import Roulette from "../components/Roulette";
 
 const Contact = () => {
   const [userId, setUserId] = useState(null);
+  const [coins, setCoins] = useState(0); // Состояние для монет
 
   useEffect(() => {
     let id = localStorage.getItem("casinoUserId");
@@ -60,8 +60,8 @@ const Contact = () => {
         <h1>🎲 TON Казино</h1>
         {userId && (
           <>
-            <TonConnector userId={userId} />
-            <Roulette userId={userId} />
+            <TonConnector userId={userId} setCoins={setCoins} />
+            <Roulette userId={userId} coins={coins} setCoins={setCoins} />
           </>
         )}
       </div>

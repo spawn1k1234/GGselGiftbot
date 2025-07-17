@@ -7,6 +7,19 @@ const Roulette = ({ userId, coins, setCoins }) => {
   const [loading, setLoading] = useState(false);
   const [txStatus, setTxStatus] = useState("");
 
+  useEffect(() => {
+    if (!userId) return;
+    const userRef = ref(database, `users/${userId}`);
+
+    // Получаем данные о монетах пользователя из Firebase
+    get(userRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        setCoins(data.coins || 0); // Устанавливаем количество монет
+      }
+    });
+  }, [userId, setCoins]);
+
   const spinRoulette = async () => {
     if (betAmount <= 0 || betAmount > coins) {
       setTxStatus("Некорректная сумма ставки.");
